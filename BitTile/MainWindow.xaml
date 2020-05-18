@@ -41,17 +41,17 @@
 					<MouseBinding Gesture="LeftClick" Command="{Binding WheelCommand}" CommandParameter="{Binding ElementName=ColorWheelImage}"/>
 				</Image.InputBindings>
 			</Image>
-			<Image x:Name="ColorTriangleImage"  Source="{Binding ColorTriangleImage}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="110" Height="110" Margin="25,0,0,0">
+			<Image x:Name="ColorDiamondImage"  Source="{Binding ColorDiamondImage}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding DiamondLengthOfSide}" Height="{Binding DiamondLengthOfSide}" Margin="0,0,0,0">
 				<Image.InputBindings>
-					<MouseBinding Gesture="LeftClick" Command="{Binding TriangleCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}}"/>
+					<MouseBinding Gesture="LeftClick" Command="{Binding DiamondCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}}"/>
 				</Image.InputBindings>
 			</Image>
-			<Image Source="{Binding ColorTriangleSelectionCircle.Image}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10" Height="10">
+			<Image Source="{Binding ColorDiamondSelectionCircle.Image}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10" Height="10">
 				<Image.RenderTransform>
-					<TranslateTransform Y="{Binding ColorTriangleSelectionCircle.Y}" X="{Binding ColorTriangleSelectionCircle.X}"/>
+					<TranslateTransform Y="{Binding ColorDiamondSelectionCircle.Y}" X="{Binding ColorDiamondSelectionCircle.X}"/>
 				</Image.RenderTransform>
 				<Image.InputBindings>
-					<MouseBinding Gesture="LeftClick" Command="{Binding TriangleCommand}" CommandParameter="{Binding ElementName=ColorTriangleImage}"/>
+					<MouseBinding Gesture="LeftClick" Command="{Binding DiamondCommand}" CommandParameter="{Binding ElementName=ColorDiamondImage}"/>
 				</Image.InputBindings>
 			</Image>
 

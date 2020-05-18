@@ -29,7 +29,7 @@ namespace ExtensionMethods
 			return radian * (180 / Math.PI);
 		}
 
-		public static Color[] ConvertMediaColorsToDrawingColors(this System.Windows.Media.Color[] colors)
+		public static Color[] ConvertMediaColorToDrawingColor(this System.Windows.Media.Color[] colors)
 		{
 			Color[] drawingColors = new Color[colors.Length];
 			for (int i = 0; i < colors.Length; i++)
@@ -38,6 +38,11 @@ namespace ExtensionMethods
 				drawingColors[i] = temp;
 			}
 			return drawingColors;
+		}
+
+		public static Color ConvertMediaColorToDrawingColor(this System.Windows.Media.Color color)
+		{
+			return Color.FromArgb(color.A, color.R, color.G, color.B);
 		}
 
 		public static System.Windows.Media.Color[] ConvertDrawingColorToMediaColor(this Color[] colors)
@@ -92,6 +97,32 @@ namespace ExtensionMethods
 				bitmap = new Bitmap(outStream);
 			}
 			return bitmap;
+		}
+
+		public static int Clamp(this int value, int min, int max)
+		{
+			if (value > max)
+			{
+				value = max;
+			}
+			else if (value < min)
+			{
+				value = min;
+			}
+			return value;
+		}
+
+		public static double Clamp(this double value, double min, double max)
+		{
+			if (value > max)
+			{
+				value = max;
+			}
+			else if (value < min)
+			{
+				value = min;
+			}
+			return value;
 		}
 	}
 }

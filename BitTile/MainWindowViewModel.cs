@@ -25,38 +25,35 @@ namespace BitTile
 		private readonly double _wheelOffsetSelectionCircleToMiddle = 107;
 		private readonly double _wheelImageSize = 250;
 		private readonly double _beginningOfWheel = 95;
-		private readonly Point _colorTip = new Point(110, 55);
-		private readonly Point _blackTip = new Point(0, 0);
-		private readonly Point _whiteTip = new Point(0, 110);
-		
+		private const int DIAMOND_SIZE = 150;
+		private const double DIAMOND_MULTIPLY_SCALE = (double)DIAMOND_SIZE / 100;
+		private const double DIAMOND_DIVIDE_SCALE = 100 / (double)DIAMOND_SIZE;
+
+
 		public MainWindowViewModel()
 		{
 			_wheelCommand = new DelegateCommand<Image>((image) => MouseClickOnWheel(image), (image) => MouseClickOnWheelCanExecute(image));
-			_triangleCommand = new DelegateCommand<Image>((image) => MouseClickOnTriangle(image), (image) => MouseClickOnTriangleCanExecute(image));
+			_diamondCommand = new DelegateCommand<Image>((image) => MouseClickOnDiamond(image), (image) => MouseClickOnDiamondCanExecute(image));
 			ColorWheelSelectionCircle = new SelectionCircle();
-			ColorTriangleSelectionCircle = new SelectionCircle();
+			ColorDiamondSelectionCircle = new SelectionCircle();
 
 			HueSliderValue = 180;
 			SaturationSliderValue = 100;
 			LuminositySliderValue = 50;
 			AlphaSliderValue = 100;
-
 			SetStaticColors();
-
 			ColorWheelImage = ColorWheel.Create();
-			Point[] trianglePoints = new Point[] { _colorTip, _blackTip, _whiteTip };
-			Color[] triangleColors = new Color[] { HueSelectedColor, LueBlackColor, LueWhiteColor }; 
-			ColorTriangleImage = ColorTriangle.Create(trianglePoints, triangleColors.ConvertMediaColorsToDrawingColors(), 110, 110);
+			ColorDiamondImage = ColorDiamond.Create(HueSelectedColor, DIAMOND_SIZE);
 
 		}
 
 		private DelegateCommand<Image> _wheelCommand;
-		private DelegateCommand<Image> _triangleCommand;
+		private DelegateCommand<Image> _diamondCommand;
 
 		private BitmapSource _colorWheelImage;
-		private BitmapSource _colorTriangleImage;
+		private BitmapSource _colorDiamondImage;
 		private SelectionCircle _colorWheelSelectionCircle;
-		private SelectionCircle _colorTriangleSelectionCircle;
+		private SelectionCircle _colorDiamondSelectionCircle;
 
 		private Color _leftMouseSelectedColor;
 		private Color _hueSelectedColor;
@@ -68,6 +65,12 @@ namespace BitTile
 		private int _saturationSliderValue;
 		private int _luminositySliderValue;
 		private int _alphaSliderValue;
+
+		public int DiamondLengthOfSide
+		{
+			get { return DIAMOND_SIZE; }
+		}
+
 
 		#region Colors
 		public Color LeftMouseSelectedColor
@@ -158,15 +161,13 @@ namespace BitTile
 			{
 				if (value != _hueSliderValue)
 				{
-					_hueSliderValue = value;
+					_hueSliderValue = value.Clamp(0, 360);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
 					HueSelectedColor = ColorHelper.HslaToRgba(HueSliderValue, 100, 50, 100);
-					Point[] trianglePoints = new Point[] { new Point(110, 55), new Point(0, 0), new Point(0, 55), new Point(0, 110) };
-					Color[] triangleColors = new Color[] { HueSelectedColor, LueBlackColor, SatZeroColor, LueWhiteColor };
-					ColorTriangleImage = ColorTriangle.Create(trianglePoints, triangleColors.ConvertMediaColorsToDrawingColors(), 110, 110);
-					ColorWheelSelectionCircle.X = Math.Cos(_hueSliderValue.AngleToRadians()) * _wheelOffsetSelectionCircleToMiddle;
-					ColorWheelSelectionCircle.Y = -Math.Sin(_hueSliderValue.AngleToRadians()) * _wheelOffsetSelectionCircleToMiddle;
+					ColorDiamondImage = ColorDiamond.Create(HueSelectedColor, DIAMOND_SIZE);
+					ColorWheelSelectionCircle.X = Math.Cos(HueSliderValue.AngleToRadians()) * _wheelOffsetSelectionCircleToMiddle;
+					ColorWheelSelectionCircle.Y = -Math.Sin(HueSliderValue.AngleToRadians()) * _wheelOffsetSelectionCircleToMiddle;
 					NotifyPropertyChanged();
 				}
 			}
@@ -182,9 +183,10 @@ namespace BitTile
 			{
 				if (value != _saturationSliderValue)
 				{
-					_saturationSliderValue = value;
+					_saturationSliderValue = value.Clamp(0, 100);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
+					ColorDiamondSelectionCircle.X = CalculateDiamondX(SaturationSliderValue);
 					NotifyPropertyChanged();
 				}
 			}
@@ -200,9 +202,11 @@ namespace BitTile
 			{
 				if (value != _luminositySliderValue)
 				{
-					_luminositySliderValue = value;
+					_luminositySliderValue = value.Clamp(0, 100);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
+					ColorDiamondSelectionCircle.X = CalculateDiamondX(SaturationSliderValue);
+					ColorDiamondSelectionCircle.Y = CalculateDiamondY(LuminositySliderValue);
 					NotifyPropertyChanged();
 				}
 			}
@@ -218,7 +222,7 @@ namespace BitTile
 			{
 				if (value != _alphaSliderValue)
 				{
-					_alphaSliderValue = value;
+					_alphaSliderValue = value.Clamp(0, 100);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
 					NotifyPropertyChanged();
@@ -226,7 +230,7 @@ namespace BitTile
 			}
 		}
 
-		#endregion Slider Values,
+		#endregion Slider Values
 
 		#region Images
 		public SelectionCircle ColorWheelSelectionCircle
@@ -237,7 +241,7 @@ namespace BitTile
 			}
 			set
 			{
-				if(value != _colorWheelSelectionCircle)
+				if (value != _colorWheelSelectionCircle)
 				{
 					_colorWheelSelectionCircle = value;
 					NotifyPropertyChanged();
@@ -245,17 +249,17 @@ namespace BitTile
 			}
 		}
 
-		public SelectionCircle ColorTriangleSelectionCircle
+		public SelectionCircle ColorDiamondSelectionCircle
 		{
 			get
 			{
-				return _colorTriangleSelectionCircle;
+				return _colorDiamondSelectionCircle;
 			}
 			set
 			{
-				if (value != _colorTriangleSelectionCircle)
+				if (value != _colorDiamondSelectionCircle)
 				{
-					_colorTriangleSelectionCircle = value;
+					_colorDiamondSelectionCircle = value;
 					NotifyPropertyChanged();
 				}
 			}
@@ -278,17 +282,17 @@ namespace BitTile
 			}
 		}
 
-		public BitmapSource ColorTriangleImage
+		public BitmapSource ColorDiamondImage
 		{
 			get
 			{
-				return _colorTriangleImage;
+				return _colorDiamondImage;
 			}
 			set
 			{
-				if (value != _colorTriangleImage)
+				if (value != _colorDiamondImage)
 				{
-					_colorTriangleImage = value;
+					_colorDiamondImage = value;
 					NotifyPropertyChanged();
 				}
 			}
@@ -311,17 +315,17 @@ namespace BitTile
 			}
 		}
 
-		public DelegateCommand<Image> TriangleCommand
+		public DelegateCommand<Image> DiamondCommand
 		{
 			get
 			{
-				return _triangleCommand;
+				return _diamondCommand;
 			}
 			set
 			{
-				if (value != _triangleCommand)
+				if (value != _diamondCommand)
 				{
-					_triangleCommand = value;
+					_diamondCommand = value;
 					NotifyPropertyChanged();
 				}
 			}
@@ -360,7 +364,7 @@ namespace BitTile
 		private bool MouseClickOnWheelCanExecute(Image image)
 		{
 			bool canExecute = false;
-			if(image is IInputElement element)
+			if (image is IInputElement element)
 			{
 				System.Windows.Point point = Mouse.GetPosition(element);
 				double cartX = point.X - _wheelImageSize / 2;
@@ -372,38 +376,46 @@ namespace BitTile
 			return canExecute;
 		}
 
-		private void MouseClickOnTriangle(Image image)
+		private void MouseClickOnDiamond(Image image)
 		{
 			if (image is IInputElement element)
 			{
 				System.Windows.Point clickPoint = Mouse.GetPosition(element);
-				using (Bitmap img = ColorTriangleImage.BitmapFromSource())
-				{
-					Color color = img.GetPixel((int)clickPoint.X, (int)clickPoint.Y).ConvertDrawingColorToMediaColor();
-					double[] hslaValues = ColorHelper.ExpandDoublesToHSLAValues(ColorHelper.RgbaToHsla(color));
-					SaturationSliderValue = (int)hslaValues[1];
-					LuminositySliderValue = (int)hslaValues[2];
-				}
-				double cartX = clickPoint.X - 44;
-				double cartY = clickPoint.Y - 55;
-				ColorTriangleSelectionCircle.X = cartX;
-				ColorTriangleSelectionCircle.Y = cartY;
+				double y = DIAMOND_SIZE * DIAMOND_DIVIDE_SCALE - clickPoint.Y * DIAMOND_DIVIDE_SCALE;
+				double complicated = y >= 50 ? 50 - (y % 50) : y;
+				complicated = y != 100 ? complicated : 0;
+				double x = clickPoint.X * DIAMOND_DIVIDE_SCALE * complicated / 50;
+				SaturationSliderValue = (int)x;
+				LuminositySliderValue = (int)y;
+				//using (Bitmap img = ColorDiamondImage.BitmapFromSource())
+				//{
+				//	Point clickPoint = Mouse.GetPosition(element).ConvertWindowPointToDrawingPoint();
+
+				//	Color color = img.GetPixel((int)clickPoint.X, (int)clickPoint.Y).ConvertDrawingColorToMediaColor();
+				//	double[] hslaValues = ColorHelper.ExpandDoublesToHSLAValues(ColorHelper.RgbaToHsla(color));
+				//	SaturationSliderValue = (int)hslaValues[1];
+				//	LuminositySliderValue = (int)hslaValues[2];
+				//}
 			}
 		}
 
-		private bool MouseClickOnTriangleCanExecute(Image image)
+		private bool MouseClickOnDiamondCanExecute(Image image)
 		{
 			bool canExecute = false;
 			if (image is IInputElement element)
 			{
-				double areaOfColorTriangle = CalculateArea(_blackTip, _whiteTip, _colorTip);
-				double areaOfClickTriangles = 0;
 				Point clickPoint = Mouse.GetPosition(element).ConvertWindowPointToDrawingPoint();
-				areaOfClickTriangles += CalculateArea(_blackTip, _whiteTip, clickPoint);
-				areaOfClickTriangles += CalculateArea(_blackTip, clickPoint, _colorTip);
-				areaOfClickTriangles += CalculateArea(clickPoint, _whiteTip, _colorTip);
-				canExecute = areaOfColorTriangle - areaOfClickTriangles > -0.1; // -0.1 is the delta. It also allows for "fuzz" in that clicks (very) near the edge work
 
+				Point bottomTip = new Point(DIAMOND_SIZE / 2, 0);
+				Point topTip = new Point(DIAMOND_SIZE / 2, DIAMOND_SIZE);
+				Point sideTip = clickPoint.X > DIAMOND_SIZE / 2 ? new Point(DIAMOND_SIZE, DIAMOND_SIZE / 2) : new Point(0, DIAMOND_SIZE / 2); ;
+
+				double areaOfColorDiamond = CalculateArea(bottomTip, topTip, sideTip);
+				double areaOfClickDiamonds = 0;
+				areaOfClickDiamonds += CalculateArea(bottomTip, topTip, clickPoint);
+				areaOfClickDiamonds += CalculateArea(bottomTip, clickPoint, sideTip);
+				areaOfClickDiamonds += CalculateArea(clickPoint, topTip, sideTip);
+				canExecute = areaOfColorDiamond - areaOfClickDiamonds > -0.1; // -0.1 is the delta. It also allows for "fuzz" in that clicks (very) near the edge work
 			}
 			return canExecute;
 		}
@@ -419,6 +431,18 @@ namespace BitTile
 			Matrix<double> matrix = DenseMatrix.OfArray(array);
 			double det = matrix.Determinant();
 			return Math.Abs(det) / 2;
+		}
+
+		private double CalculateDiamondX(double value)
+		{
+			double complicated = LuminositySliderValue >= 50 ? 50 - (LuminositySliderValue % 50) : LuminositySliderValue;
+			complicated = LuminositySliderValue != 100 ? complicated : 0;
+			return (value * DIAMOND_MULTIPLY_SCALE - DIAMOND_SIZE / 2) * complicated / 50;
+		}
+
+		private double CalculateDiamondY(double value)
+		{
+			return DIAMOND_SIZE - (value * DIAMOND_MULTIPLY_SCALE + DIAMOND_SIZE / 2);
 		}
 	}
 }
