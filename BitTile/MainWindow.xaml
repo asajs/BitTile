@@ -1,0 +1,187 @@
+﻿<Window x:Class="BitTile.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BitTile"
+        mc:Ignorable="d"
+        Title="BitTile" Height="500" Width="800" Background="#ABABAB">
+
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="250"/>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="250"/>
+		</Grid.ColumnDefinitions>
+		<Grid x:Name="LeftHandSide" Grid.Column="0">
+
+		</Grid>
+		<Grid x:Name="Middle" Grid.Column="1">
+
+		</Grid>
+		<Grid x:Name="RightHandSide" Grid.Column="2">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="250"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="35"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			<Image x:Name="ColorWheelImage" Source="{Binding ColorWheelImage}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+				<Image.InputBindings>
+					<MouseBinding Gesture="LeftClick" Command="{Binding WheelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}}"/>
+				</Image.InputBindings>
+			</Image>
+			<Image Source="{Binding ColorWheelSelectionCircle.Image}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10" Height="10">
+				<Image.RenderTransform>
+					<TranslateTransform Y="{Binding ColorWheelSelectionCircle.Y}" X="{Binding ColorWheelSelectionCircle.X}"/>
+				</Image.RenderTransform>
+				<Image.InputBindings>
+					<MouseBinding Gesture="LeftClick" Command="{Binding WheelCommand}" CommandParameter="{Binding ElementName=ColorWheelImage}"/>
+				</Image.InputBindings>
+			</Image>
+			<Image x:Name="ColorTriangleImage"  Source="{Binding ColorTriangleImage}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="110" Height="110" Margin="25,0,0,0">
+				<Image.InputBindings>
+					<MouseBinding Gesture="LeftClick" Command="{Binding TriangleCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}}"/>
+				</Image.InputBindings>
+			</Image>
+			<Image Source="{Binding ColorTriangleSelectionCircle.Image}" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="10" Height="10">
+				<Image.RenderTransform>
+					<TranslateTransform Y="{Binding ColorTriangleSelectionCircle.Y}" X="{Binding ColorTriangleSelectionCircle.X}"/>
+				</Image.RenderTransform>
+				<Image.InputBindings>
+					<MouseBinding Gesture="LeftClick" Command="{Binding TriangleCommand}" CommandParameter="{Binding ElementName=ColorTriangleImage}"/>
+				</Image.InputBindings>
+			</Image>
+
+			<!-- Hue -->
+			<TextBlock Text="Hue" Width="30" Margin="5" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+			<Slider Minimum="0" Maximum="360" Margin="35, 5, 50, 5" Value="{Binding HueSliderValue, Mode=TwoWay}" Grid.Row="1" Height="18">
+				<Slider.Background>
+					<VisualBrush>
+						<VisualBrush.Visual>
+							<Rectangle Width="1" Height="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush StartPoint="0.02, 0" EndPoint="0.98, 0">
+										<GradientStop Color="#FFFF0000" Offset="0"/>
+										<GradientStop Color="#FFFFFF00" Offset="0.16"/>
+										<GradientStop Color="#FF00FF00" Offset="0.33"/>
+										<GradientStop Color="#FF00FFFF" Offset="0.5"/>
+										<GradientStop Color="#FF0000FF" Offset="0.66"/>
+										<GradientStop Color="#FFFF00FF" Offset="0.83"/>
+										<GradientStop Color="#FFFF0000" Offset="1"/>
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+						</VisualBrush.Visual>
+					</VisualBrush>
+				</Slider.Background>
+			</Slider>
+			<TextBox Text="{Binding HueSliderValue}" Width="40" Margin="5" VerticalAlignment="Center" Grid.Row="1" HorizontalAlignment="Right" FontSize="14"/>
+			<!-- Saturation -->
+			<TextBlock Text="Sat" Width="30" Margin="5" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+			<Slider Minimum="0" Maximum="100" Margin="35, 5, 50, 5" Value="{Binding SaturationSliderValue, Mode=TwoWay}" Grid.Row="2" Height="18">
+				<Slider.Background>
+					<VisualBrush>
+						<VisualBrush.Visual>
+							<Rectangle Width="1" Height="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush StartPoint="0.02, 0" EndPoint="0.98, 0">
+										<GradientStop Color="{Binding SatZeroColor}" Offset="0"/>
+										<GradientStop Color="{Binding HueSelectedColor}" Offset="1"/>
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+						</VisualBrush.Visual>
+					</VisualBrush>
+				</Slider.Background>
+			</Slider>
+			<TextBox Text="{Binding SaturationSliderValue}" Width="40" Margin="5" VerticalAlignment="Center" Grid.Row="2" HorizontalAlignment="Right" FontSize="14"/>
+			<!-- Luminosity -->
+			<TextBlock Text="Lum" Width="30" Margin="5" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+			<Slider Minimum="0" Maximum="100" Margin="35, 5, 50, 5" Value="{Binding LuminositySliderValue, Mode=TwoWay}" Grid.Row="3" Height="18">
+				<Slider.Background>
+					<VisualBrush>
+						<VisualBrush.Visual>
+							<Rectangle Width="1" Height="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush StartPoint="0.02, 0" EndPoint="0.98, 0">
+										<GradientStop Color="{Binding LueBlackColor}" Offset="0"/>
+										<GradientStop Color="{Binding HueSelectedColor}" Offset="0.5"/>
+										<GradientStop Color="{Binding LueWhiteColor}" Offset="1"/>
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+						</VisualBrush.Visual>
+					</VisualBrush>
+				</Slider.Background>
+			</Slider>
+			<TextBox Text="{Binding LuminositySliderValue}" Width="40" Margin="5" VerticalAlignment="Center" Grid.Row="3" HorizontalAlignment="Right" FontSize="14"/>
+			<!-- Alpha -->
+			<TextBlock Text="Opc" Width="30" Margin="5" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14"/>
+			<Rectangle Margin="35, 5, 50, 5" Grid.Row="4" Height="18">
+				<Rectangle.Fill>
+					<DrawingBrush TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
+						<DrawingBrush.Drawing>
+							<GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="LightGray"/>
+						</DrawingBrush.Drawing>
+					</DrawingBrush>
+				</Rectangle.Fill>
+			</Rectangle>
+			<Slider Minimum="0" Maximum="100" Margin="35, 5, 50, 5" Value="{Binding AlphaSliderValue, Mode=TwoWay}" Grid.Row="4" Height="18">
+				<Slider.Background>
+					<VisualBrush>
+						<VisualBrush.Visual>
+							<Rectangle Width="1" Height="1">
+								<Rectangle.Fill>
+									<LinearGradientBrush StartPoint="0.02, 0" EndPoint="0.98, 0">
+										<GradientStop Color="#00000000" Offset="0"/>
+										<GradientStop Color="{Binding HueSelectedColor}" Offset="1"/>
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+						</VisualBrush.Visual>
+					</VisualBrush>
+				</Slider.Background>
+			</Slider>
+			<TextBox Text="{Binding AlphaSliderValue}" Width="40" Margin="5" VerticalAlignment="Center" Grid.Row="4" HorizontalAlignment="Right" FontSize="14"/>
+			<Grid Grid.Row="5">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="0.5*"/>
+					<ColumnDefinition Width="0.5*"/>
+				</Grid.ColumnDefinitions>
+				<!-- Left Mouse -->
+				<Rectangle Margin="5" Grid.Column="0" Width="60" Height="60" HorizontalAlignment="Right" VerticalAlignment="Top">
+					<Rectangle.Fill>
+						<DrawingBrush TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
+							<DrawingBrush.Drawing>
+								<GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="LightGray"/>
+							</DrawingBrush.Drawing>
+						</DrawingBrush>
+					</Rectangle.Fill>
+				</Rectangle>
+				<Rectangle Margin="5" Grid.Column="0" Width="60" Height="60" HorizontalAlignment="Right" VerticalAlignment="Top">
+					<Rectangle.Fill>
+						<SolidColorBrush Color="{Binding LeftMouseSelectedColor}"/>
+					</Rectangle.Fill>
+				</Rectangle>
+				<!-- Right Mouse -->
+				<Rectangle Margin="5" Grid.Column="1" Width="60" Height="60" HorizontalAlignment="Left" VerticalAlignment="Top">
+					<Rectangle.Fill>
+						<DrawingBrush TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
+							<DrawingBrush.Drawing>
+								<GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="LightGray"/>
+							</DrawingBrush.Drawing>
+						</DrawingBrush>
+					</Rectangle.Fill>
+				</Rectangle>
+				<Rectangle Margin="5" Grid.Column="1" Width="60" Height="60" HorizontalAlignment="Left" VerticalAlignment="Top">
+					<Rectangle.Fill>
+						<SolidColorBrush Color="{Binding LeftMouseSelectedColor}"/>
+					</Rectangle.Fill>
+				</Rectangle>
+			</Grid>
+		</Grid>
+	</Grid>
+</Window>
