@@ -382,9 +382,7 @@ namespace BitTile
 			{
 				System.Windows.Point clickPoint = Mouse.GetPosition(element);
 				double y = DIAMOND_SIZE * DIAMOND_DIVIDE_SCALE - clickPoint.Y * DIAMOND_DIVIDE_SCALE;
-				double complicated = y >= 50 ? 50 - (y % 50) : y;
-				complicated = y != 100 ? complicated : 0;
-				double x = clickPoint.X * DIAMOND_DIVIDE_SCALE * complicated / 50;
+				double x = (clickPoint.X - 0) * (to_max - to_min) / (DIAMOND_SIZE - 0) + to_min;
 				SaturationSliderValue = (int)x;
 				LuminositySliderValue = (int)y;
 				//using (Bitmap img = ColorDiamondImage.BitmapFromSource())
