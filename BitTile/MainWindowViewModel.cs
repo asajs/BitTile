@@ -382,18 +382,13 @@ namespace BitTile
 			{
 				System.Windows.Point clickPoint = Mouse.GetPosition(element);
 				double y = DIAMOND_SIZE * DIAMOND_DIVIDE_SCALE - clickPoint.Y * DIAMOND_DIVIDE_SCALE;
-				double x = (clickPoint.X - 0) * (to_max - to_min) / (DIAMOND_SIZE - 0) + to_min;
-				SaturationSliderValue = (int)x;
+				double distanceFromTopBottom = clickPoint.Y > DIAMOND_SIZE / 2 ? DIAMOND_SIZE - clickPoint.Y : clickPoint.Y;
+				double yRatio = distanceFromTopBottom / (DIAMOND_SIZE / 2);
+				double xLength = DIAMOND_SIZE * yRatio;
+				double modifiedX = clickPoint.X - ((DIAMOND_SIZE - xLength) / 2);
+				double sliderValue = modifiedX / xLength * 100;
+				SaturationSliderValue = (int)sliderValue;
 				LuminositySliderValue = (int)y;
-				//using (Bitmap img = ColorDiamondImage.BitmapFromSource())
-				//{
-				//	Point clickPoint = Mouse.GetPosition(element).ConvertWindowPointToDrawingPoint();
-
-				//	Color color = img.GetPixel((int)clickPoint.X, (int)clickPoint.Y).ConvertDrawingColorToMediaColor();
-				//	double[] hslaValues = ColorHelper.ExpandDoublesToHSLAValues(ColorHelper.RgbaToHsla(color));
-				//	SaturationSliderValue = (int)hslaValues[1];
-				//	LuminositySliderValue = (int)hslaValues[2];
-				//}
 			}
 		}
 
