@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using ExtensionMethods;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ExtensionMethods;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
 
