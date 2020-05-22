@@ -14,7 +14,7 @@ using Point = System.Drawing.Point;
 
 namespace BitTile
 {
-	public class MainWindowViewModel : INotifyPropertyChanged
+	public class ColorPickerViewModel : INotifyPropertyChanged
 	{
 		private readonly double _wheelOffsetSelectionCircleToMiddle = 107;
 		private readonly double _wheelImageSize = 250;
@@ -24,7 +24,7 @@ namespace BitTile
 		private const double DIAMOND_DIVIDE_SCALE = 100 / (double)DIAMOND_SIZE;
 
 
-		public MainWindowViewModel()
+		public ColorPickerViewModel()
 		{
 			_wheelCommand = new DelegateCommand<Image>((image) => MouseClickOnWheel(image), (image) => MouseClickOnWheelCanExecute(image));
 			_diamondCommand = new DelegateCommand<Image>((image) => MouseClickOnDiamond(image), (image) => MouseClickOnDiamondCanExecute(image));

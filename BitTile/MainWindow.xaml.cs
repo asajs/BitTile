@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.IO;
+﻿using System.ComponentModel;
 using System.Windows;
 
 namespace BitTile
@@ -9,19 +8,28 @@ namespace BitTile
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private MainWindowViewModel _mainWindowViewModel = new MainWindowViewModel();
+		private ColorPickerViewModel _colorPickerViewModel = new ColorPickerViewModel();
+		private ColorPicker _colorPicker = new ColorPicker();
+
+		private DrawingSpaceViewModel _drawingSpaceViewModel = new DrawingSpaceViewModel();
+		private DrawingSpace _drawingSpace = new DrawingSpace();
 		public MainWindow()
 		{
 			InitializeComponent();
-			DataContext = _mainWindowViewModel;
+			_colorPicker.DataContext = _colorPickerViewModel;
+			RightHandSide.Children.Add(_colorPicker);
+
+			_drawingSpace.DataContext = _drawingSpaceViewModel;
+			Middle.Children.Add(_drawingSpace);
+
+			_colorPickerViewModel.PropertyChanged += ColorPickerPropertyChanged;
 		}
 
-		public byte[] ImageToByteArray(Bitmap imageIn)
+		private void ColorPickerPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			using (var ms = new MemoryStream())
+			if(e.PropertyName == nameof(_colorPickerViewModel.LeftMouseSelectedColor))
 			{
-				imageIn.Save(ms, imageIn.RawFormat);
-				return ms.ToArray();
+				_drawingSpaceViewModel.SetColorOfPen(_colorPickerViewModel.LeftMouseSelectedColor);
 			}
 		}
 	}
