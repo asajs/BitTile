@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using ExtensionMethods;
+using System.ComponentModel;
 using System.Windows;
 
 namespace BitTile
@@ -29,7 +30,7 @@ namespace BitTile
 		{
 			if(e.PropertyName == nameof(_colorPickerViewModel.LeftMouseSelectedColor))
 			{
-				_drawingSpaceViewModel.SetColorOfPen(_colorPickerViewModel.LeftMouseSelectedColor);
+				_drawingSpaceViewModel.SetColorOfPen(_colorPickerViewModel.LeftMouseSelectedColor.ConvertMediaColorToDrawingColor());
 			}
 		}
 	}

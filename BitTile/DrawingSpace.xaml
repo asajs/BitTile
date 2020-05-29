@@ -6,17 +6,53 @@
              xmlns:local="clr-namespace:BitTile"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+	
+	<UserControl.Resources>
+		<DrawingBrush x:Key="GridTile" Stretch="None" TileMode="Tile"
+              Viewport="{Binding TileBrush.Viewport}" ViewportUnits="Absolute">
+			<!-- ^^^^^^^^^^^ set the size of the tile-->
+			<DrawingBrush.Drawing>
+				<GeometryDrawing>
+					<GeometryDrawing.Geometry>
+						<!-- draw a single box -->
+						<GeometryGroup>
+							<LineGeometry StartPoint="{Binding TopLeft}" EndPoint="{Binding TopRight}" />
+							<LineGeometry StartPoint="{Binding TopRight}" EndPoint="{Binding BottomRight}" />
+							<LineGeometry StartPoint="{Binding BottomRight}" EndPoint="{Binding BottomLeft}" />
+							<LineGeometry StartPoint="{Binding BottomLeft}" EndPoint="{Binding TopLeft}" />
+						</GeometryGroup>
+					</GeometryDrawing.Geometry>
+					<GeometryDrawing.Pen>
+						<!-- set color and thickness of lines -->
+						<Pen Thickness="1" Brush="DarkGray" />
+					</GeometryDrawing.Pen>
+				</GeometryDrawing>
+			</DrawingBrush.Drawing>
+		</DrawingBrush>
+
+		<DrawingBrush x:Key="OffsetGrid" Stretch="None" AlignmentX="Left" AlignmentY="Top">
+			<DrawingBrush.Drawing>
+				<GeometryDrawing Brush="{StaticResource GridTile}" >
+					<GeometryDrawing.Geometry>
+						<!-- set the width and height filled with the tile from the origin -->
+						<RectangleGeometry Rect="{Binding GridSize}" />
+					</GeometryDrawing.Geometry>
+				</GeometryDrawing>
+			</DrawingBrush.Drawing>
+		</DrawingBrush>
+	</UserControl.Resources>
+	
 	<Grid x:Name="PixelContainer" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width}" Height="{Binding Height}">
 		<Rectangle Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Grid}}, Path=ActualWidth}" Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Grid}}, Path=ActualHeight}">
-		<!--<Rectangle Width="100" Height="100">-->
 			<Rectangle.Fill>
-				<DrawingBrush TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
+				<DrawingBrush TileMode="Tile" Viewport="{Binding TileBrush.Viewport}" ViewportUnits="Absolute">
 					<DrawingBrush.Drawing>
 						<GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="LightGray"/>
 					</DrawingBrush.Drawing>
 				</DrawingBrush>
 			</Rectangle.Fill>
 		</Rectangle>
-
+		<Image Source="{Binding BitTile}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width}" Height="{Binding Height}"/>
+		<Grid Background="{StaticResource OffsetGrid}"/>
 	</Grid>
 </UserControl>
