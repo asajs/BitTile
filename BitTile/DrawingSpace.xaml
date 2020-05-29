@@ -52,7 +52,11 @@
 				</DrawingBrush>
 			</Rectangle.Fill>
 		</Rectangle>
-		<Image Source="{Binding BitTile}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width}" Height="{Binding Height}"/>
-		<Grid Background="{StaticResource OffsetGrid}"/>
+		<Image Source="{Binding BitTile}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width}" Height="{Binding Height}">
+			<Image.InputBindings>
+				<MouseBinding Gesture="LeftClick" Command="{Binding LeftMouseCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}}"/>
+			</Image.InputBindings>
+		</Image>
+		<Grid Background="{StaticResource OffsetGrid}" IsHitTestVisible="False"/>
 	</Grid>
 </UserControl>

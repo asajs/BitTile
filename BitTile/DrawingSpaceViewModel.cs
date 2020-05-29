@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.PlatformUI;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
+using Point = System.Windows.Point;
+using Image = System.Windows.Controls.Image;
 
 namespace BitTile
 {
@@ -21,33 +23,43 @@ namespace BitTile
 		private int _numberOfPixelsSize;
 		private int _sizeOfPixel;
 
+		private DelegateCommand<Image> _leftMouseCommand;
+
 		private Rect _gridSize;
-		private System.Windows.Point _topLeft;
-		private System.Windows.Point _topRight;
-		private System.Windows.Point _bottomLeft;
-		private System.Windows.Point _bottomRight;
+		private Point _topLeft;
+		private Point _topRight;
+		private Point _bottomLeft;
+		private Point _bottomRight;
 
 		public DrawingSpaceViewModel()
 		{
-			SizeOfPixel = 40;
-			NumberOfPixelsSize = 16;
+			LeftMouseCommand = new DelegateCommand<Image>((image) => HandleLeftMouseCommand(image));
+			SizeOfPixel = 10;
+			NumberOfPixelsSize = 64;
 			_colors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
-			Random random = new Random();
 			for(int i = 0; i < NumberOfPixelsSize; i++)
 			{
 				for(int j = 0; j < NumberOfPixelsSize; j++)
 				{
-					//byte alpha = Convert.ToByte(random.Next(0, 255));
-					byte alpha = 0xFF;
-					byte red = Convert.ToByte(random.Next(0, 255));
-					byte green = Convert.ToByte(random.Next(0, 255));
-					byte blue = Convert.ToByte(random.Next(0, 255));
-					Colors[i, j] = Color.FromArgb(alpha, red, green, blue);
-					//Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
+					Colors[i, j] = Color.FromArgb(0xFF, 0xff, 0xff, 0xff);
 				}
 			}
-			BitTile = CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
+			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
 		}
+
+		public DelegateCommand<Image> LeftMouseCommand
+		{
+			get { return _leftMouseCommand; }
+			set
+			{
+				if(value != _leftMouseCommand)
+				{
+					_leftMouseCommand = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
 
 		public BitmapSource BitTile
 		{
@@ -62,7 +74,7 @@ namespace BitTile
 			}
 		}
 
-		public System.Windows.Point TopLeft
+		public Point TopLeft
 		{
 			get { return _topLeft; }
 			private set
@@ -75,7 +87,7 @@ namespace BitTile
 			}
 		}
 
-		public System.Windows.Point TopRight
+		public Point TopRight
 		{
 			get { return _topRight; }
 			private set
@@ -88,7 +100,7 @@ namespace BitTile
 			}
 		}
 
-		public System.Windows.Point BottomLeft
+		public Point BottomLeft
 		{
 			get { return _bottomLeft; }
 			private set
@@ -101,7 +113,7 @@ namespace BitTile
 			}
 		}
 
-		public System.Windows.Point BottomRight
+		public Point BottomRight
 		{
 			get { return _bottomRight; }
 			private set
@@ -193,10 +205,10 @@ namespace BitTile
 				{
 					_sizeOfPixel = value;
 					NotifyPropertyChanged();
-					TopLeft = new System.Windows.Point(0,0);
-					TopRight = new System.Windows.Point(0, _sizeOfPixel);
-					BottomRight = new System.Windows.Point(_sizeOfPixel, _sizeOfPixel);
-					BottomLeft = new System.Windows.Point(_sizeOfPixel, 0);
+					TopLeft = new Point(0,0);
+					TopRight = new Point(0, _sizeOfPixel);
+					BottomRight = new Point(_sizeOfPixel, _sizeOfPixel);
+					BottomLeft = new Point(_sizeOfPixel, 0);
 					UpdateSecondaryProperties();
 				}
 			}
@@ -238,59 +250,14 @@ namespace BitTile
 			};
 		}
 
-
-		private BitmapSource CreateBitTile(Color[,] colors, int pixelSize, int pixelsWide, int pixelsHeight)
+		private void HandleLeftMouseCommand(Image image)
 		{
-			BitmapSource image;
-			using (Bitmap bitmap = new Bitmap(pixelsWide * pixelSize, pixelsHeight * pixelSize))
+			if (image is IInputElement element)
 			{
-				using (Graphics graphics = Graphics.FromImage(bitmap))
-				{
-					DrawBitMap(graphics, colors, pixelSize, pixelsWide, pixelsHeight);
-				}
-				image = CreateBitmapSourceFromGdiBitmap(bitmap);
-			}
-			return image;
-		}
-
-		private void DrawBitMap(Graphics gr, Color[,] colors, int pixelSize, int pixelsWide, int pixelsHeight)
-		{
-			for(int i = 0; i < pixelsHeight; i++)
-			{
-				for(int j = 0; j < pixelsWide; j++)
-				{
-					SolidBrush brush = new SolidBrush(colors[i, j]);
-					gr.FillRectangle(brush, i * pixelSize, j * pixelSize, pixelSize, pixelSize);
-				}
-			}
-		}
-
-		private static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
-		{
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-
-			BitmapData bitmapData = bitmap.LockBits(
-				rect,
-				ImageLockMode.ReadWrite,
-				System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-			try
-			{
-				int size = (rect.Width * rect.Height) * 4;
-				return BitmapSource.Create(
-					bitmap.Width,
-					bitmap.Height,
-					bitmap.HorizontalResolution,
-					bitmap.VerticalResolution,
-					PixelFormats.Bgra32,
-					null,
-					bitmapData.Scan0,
-					size,
-					bitmapData.Stride);
-			}
-			finally
-			{
-				bitmap.UnlockBits(bitmapData);
+				Point point = Mouse.GetPosition(element);
+				int x = (int)(point.X / SizeOfPixel) * SizeOfPixel;
+				int y = (int)(point.Y / SizeOfPixel) * SizeOfPixel;
+				BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, x, y, SizeOfPixel);
 			}
 		}
 	}

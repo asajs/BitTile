@@ -22,6 +22,7 @@ namespace BitTile
 
 			_drawingSpace.DataContext = _drawingSpaceViewModel;
 			Middle.Children.Add(_drawingSpace);
+			_drawingSpaceViewModel.SetColorOfPen(_colorPickerViewModel.LeftMouseSelectedColor.ConvertMediaColorToDrawingColor());
 
 			_colorPickerViewModel.PropertyChanged += ColorPickerPropertyChanged;
 		}
