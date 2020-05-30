@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.9.1" />
     <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="16.5.29903.186" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>
 
