@@ -23,11 +23,15 @@ namespace BitTile
 		private const double DIAMOND_MULTIPLY_SCALE = (double)DIAMOND_SIZE / 100;
 		private const double DIAMOND_DIVIDE_SCALE = 100 / (double)DIAMOND_SIZE;
 
-
 		public ColorPickerViewModel()
 		{
-			_wheelCommand = new DelegateCommand<Image>((image) => MouseClickOnWheel(image), (image) => MouseClickOnWheelCanExecute(image));
-			_diamondCommand = new DelegateCommand<Image>((image) => MouseClickOnDiamond(image), (image) => MouseClickOnDiamondCanExecute(image));
+			LeftMouseDownOnWheelCommand = new DelegateCommand<Image>((image) => LeftMouseDownOnWheel(image), (image) => LeftMouseDownOnWheelCanExecute(image));
+			LeftMouseUpOnWheelCommand = new DelegateCommand(() => LeftMouseUpOnWheel());
+			MouseMoveOnWheelCommand = new DelegateCommand<Image>((image) => MouseMoveOnWheel(image), (image) => _isLeftMouseOnWheelPressed);
+			LeftMouseDownOnDiamondCommand = new DelegateCommand<Image>((image) => LeftMouseDownOnDiamond(image), (image) => LeftMouseDownOnDiamondCanExecute(image));
+			LeftMouseUpOnDiamondCommand = new DelegateCommand(() => LeftMouseUpOnDiamond());
+			MouseMoveOnDiamondCommand = new DelegateCommand<Image>((image) => MouseMoveOnDiamond(image), (image) => _isLeftMouseOnDiamondPressed);
+
 			ColorWheelSelectionCircle = new SelectionCircle();
 			ColorDiamondSelectionCircle = new SelectionCircle();
 
@@ -41,8 +45,13 @@ namespace BitTile
 
 		}
 
-		private DelegateCommand<Image> _wheelCommand;
-		private DelegateCommand<Image> _diamondCommand;
+		private DelegateCommand<Image> _leftMouseDownOnDiamondCommand;
+		private DelegateCommand _leftMouseUpOnDiamondCommand;
+		private DelegateCommand<Image> _mouseMoveOnDiamondCommand;
+
+		private DelegateCommand<Image> _leftMouseDownOnWheelCommand;
+		private DelegateCommand _leftMouseUpOnWheelCommand;
+		private DelegateCommand<Image> _mouseMoveOnWheelCommand;
 
 		private BitmapSource _colorWheelImage;
 		private BitmapSource _colorDiamondImage;
@@ -59,6 +68,10 @@ namespace BitTile
 		private int _saturationSliderValue;
 		private int _luminositySliderValue;
 		private int _alphaSliderValue;
+
+		private bool _isLeftMouseOnWheelPressed;
+		private bool _isLeftMouseOnDiamondPressed;
+
 
 		public int DiamondLengthOfSide
 		{
@@ -293,33 +306,97 @@ namespace BitTile
 		}
 		#endregion Images
 
-		public DelegateCommand<Image> WheelCommand
+		public DelegateCommand<Image> LeftMouseDownOnWheelCommand
 		{
 			get
 			{
-				return _wheelCommand;
+				return _leftMouseDownOnWheelCommand;
 			}
 			set
 			{
-				if (value != _wheelCommand)
+				if (value != _leftMouseDownOnWheelCommand)
 				{
-					_wheelCommand = value;
+					_leftMouseDownOnWheelCommand = value;
 					NotifyPropertyChanged();
 				}
 			}
 		}
 
-		public DelegateCommand<Image> DiamondCommand
+		public DelegateCommand LeftMouseUpOnWheelCommand
 		{
 			get
 			{
-				return _diamondCommand;
+				return _leftMouseUpOnWheelCommand;
 			}
 			set
 			{
-				if (value != _diamondCommand)
+				if (value != _leftMouseUpOnWheelCommand)
 				{
-					_diamondCommand = value;
+					_leftMouseUpOnWheelCommand = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
+		public DelegateCommand<Image> MouseMoveOnWheelCommand
+		{
+			get
+			{
+				return _mouseMoveOnWheelCommand;
+			}
+			set
+			{
+				if (value != _mouseMoveOnWheelCommand)
+				{
+					_mouseMoveOnWheelCommand = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
+		public DelegateCommand<Image> LeftMouseDownOnDiamondCommand
+		{
+			get
+			{
+				return _leftMouseDownOnDiamondCommand;
+			}
+			set
+			{
+				if (value != _leftMouseDownOnDiamondCommand)
+				{
+					_leftMouseDownOnDiamondCommand = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
+		public DelegateCommand LeftMouseUpOnDiamondCommand
+		{
+			get
+			{
+				return _leftMouseUpOnDiamondCommand;
+			}
+			set
+			{
+				if (value != _leftMouseUpOnDiamondCommand)
+				{
+					_leftMouseUpOnDiamondCommand = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
+		public DelegateCommand<Image> MouseMoveOnDiamondCommand
+		{
+			get
+			{
+				return _mouseMoveOnDiamondCommand;
+			}
+			set
+			{
+				if (value != _mouseMoveOnDiamondCommand)
+				{
+					_mouseMoveOnDiamondCommand = value;
 					NotifyPropertyChanged();
 				}
 			}
@@ -340,22 +417,14 @@ namespace BitTile
 			LueWhiteColor = ColorHelper.HslaToRgba(hslaValues[0], hslaValues[1], 100, hslaValues[3]);
 		}
 
-		private void MouseClickOnWheel(Image image)
+		#region Left Mouse Wheel
+		private void LeftMouseDownOnWheel(Image image)
 		{
-			if (image is IInputElement element)
-			{
-				System.Windows.Point point = Mouse.GetPosition(element);
-				double cartX = point.X - _wheelImageSize / 2;
-				double cartY = -point.Y + _wheelImageSize / 2;
-				double radians = Math.Atan2(cartX, cartY);
-				double angle = radians.RadiansToAngle();
-				angle = (-angle + 450) % 360;
-
-				HueSliderValue = (int)angle;
-			}
+			_isLeftMouseOnWheelPressed = true;
+			SelectColorOnWheel(image);
 		}
 
-		private bool MouseClickOnWheelCanExecute(Image image)
+		private bool LeftMouseDownOnWheelCanExecute(Image image)
 		{
 			bool canExecute = false;
 			if (image is IInputElement element)
@@ -370,23 +439,40 @@ namespace BitTile
 			return canExecute;
 		}
 
-		private void MouseClickOnDiamond(Image image)
+		private void MouseMoveOnWheel(Image image)
+		{
+			SelectColorOnWheel(image);
+		}
+
+		private void LeftMouseUpOnWheel()
+		{
+			_isLeftMouseOnWheelPressed = false;
+		}
+
+		private void SelectColorOnWheel(Image image)
 		{
 			if (image is IInputElement element)
 			{
-				System.Windows.Point clickPoint = Mouse.GetPosition(element);
-				double y = DIAMOND_SIZE * DIAMOND_DIVIDE_SCALE - clickPoint.Y * DIAMOND_DIVIDE_SCALE;
-				double distanceFromTopBottom = clickPoint.Y > DIAMOND_SIZE / 2 ? DIAMOND_SIZE - clickPoint.Y : clickPoint.Y;
-				double yRatio = distanceFromTopBottom / (DIAMOND_SIZE / 2);
-				double xLength = DIAMOND_SIZE * yRatio;
-				double modifiedX = clickPoint.X - ((DIAMOND_SIZE - xLength) / 2);
-				double sliderValue = modifiedX / xLength * 100;
-				SaturationSliderValue = (int)sliderValue;
-				LuminositySliderValue = (int)y;
+				System.Windows.Point point = Mouse.GetPosition(element);
+				double cartX = point.X - _wheelImageSize / 2;
+				double cartY = -point.Y + _wheelImageSize / 2;
+				double radians = Math.Atan2(cartX, cartY);
+				double angle = radians.RadiansToAngle();
+				angle = (-angle + 450) % 360;
+
+				HueSliderValue = (int)angle;
 			}
 		}
+		#endregion
 
-		private bool MouseClickOnDiamondCanExecute(Image image)
+		#region Left Mouse Diamond
+		private void LeftMouseDownOnDiamond(Image image)
+		{
+			_isLeftMouseOnDiamondPressed = true;
+			SelectColorOnDiamond(image);
+		}
+
+		private bool LeftMouseDownOnDiamondCanExecute(Image image)
 		{
 			bool canExecute = false;
 			if (image is IInputElement element)
@@ -405,6 +491,32 @@ namespace BitTile
 				canExecute = areaOfColorDiamond - areaOfClickDiamonds > -0.1; // -0.1 is the delta. It also allows for "fuzz" in that clicks (very) near the edge work
 			}
 			return canExecute;
+		}
+
+		private void MouseMoveOnDiamond(Image image)
+		{
+			SelectColorOnDiamond(image);
+		}
+
+		private void LeftMouseUpOnDiamond()
+		{
+			_isLeftMouseOnDiamondPressed = false;
+		}
+
+		private void SelectColorOnDiamond(Image image)
+		{
+			if (image is IInputElement element)
+			{
+				System.Windows.Point clickPoint = Mouse.GetPosition(element);
+				double y = DIAMOND_SIZE * DIAMOND_DIVIDE_SCALE - clickPoint.Y * DIAMOND_DIVIDE_SCALE;
+				double distanceFromTopBottom = clickPoint.Y > DIAMOND_SIZE / 2 ? DIAMOND_SIZE - clickPoint.Y : clickPoint.Y;
+				double yRatio = distanceFromTopBottom / (DIAMOND_SIZE / 2);
+				double xLength = DIAMOND_SIZE * yRatio;
+				double modifiedX = clickPoint.X - ((DIAMOND_SIZE - xLength) / 2);
+				double sliderValue = modifiedX / xLength * 100;
+				SaturationSliderValue = (int)sliderValue;
+				LuminositySliderValue = (int)y;
+			}
 		}
 
 		private double CalculateArea(Point C1, Point C2, Point C3)
@@ -431,5 +543,6 @@ namespace BitTile
 		{
 			return DIAMOND_SIZE - (value * DIAMOND_MULTIPLY_SCALE + DIAMOND_SIZE / 2);
 		}
+		#endregion
 	}
 }

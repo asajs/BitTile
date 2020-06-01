@@ -22,8 +22,11 @@ namespace BitTile
 		private int _width;
 		private int _numberOfPixelsSize;
 		private int _sizeOfPixel;
+		private bool _isMouseLeftPressed;
 
-		private DelegateCommand<Image> _leftMouseCommand;
+		private DelegateCommand<Image> _leftMouseDownCommand;
+		private DelegateCommand _leftMouseUpCommand;
+		private DelegateCommand<Image> _mouseMoveCommand;
 
 		private Rect _gridSize;
 		private Point _topLeft;
@@ -33,7 +36,11 @@ namespace BitTile
 
 		public DrawingSpaceViewModel()
 		{
-			LeftMouseCommand = new DelegateCommand<Image>((image) => HandleLeftMouseCommand(image));
+			_isMouseLeftPressed = false;
+			LeftMouseDownCommand = new DelegateCommand<Image>((image) => LeftMouseDown(image));
+			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
+			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
+
 			SizeOfPixel = 10;
 			NumberOfPixelsSize = 64;
 			_colors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
@@ -41,20 +48,46 @@ namespace BitTile
 			{
 				for(int j = 0; j < NumberOfPixelsSize; j++)
 				{
-					Colors[i, j] = Color.FromArgb(0xFF, 0xff, 0xff, 0xff);
+					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
 				}
 			}
 			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
 		}
 
-		public DelegateCommand<Image> LeftMouseCommand
+		public DelegateCommand<Image> LeftMouseDownCommand
 		{
-			get { return _leftMouseCommand; }
+			get { return _leftMouseDownCommand; }
 			set
 			{
-				if(value != _leftMouseCommand)
+				if(value != _leftMouseDownCommand)
 				{
-					_leftMouseCommand = value;
+					_leftMouseDownCommand = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
+		public DelegateCommand LeftMouseUpCommand
+		{
+			get { return _leftMouseUpCommand; }
+			set
+			{
+				if (value != _leftMouseUpCommand)
+				{
+					_leftMouseUpCommand = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
+		public DelegateCommand<Image> MouseMoveCommand
+		{
+			get { return _mouseMoveCommand; }
+			set
+			{
+				if (value != _mouseMoveCommand)
+				{
+					_mouseMoveCommand = value;
 					NotifyPropertyChanged();
 				}
 			}
@@ -250,7 +283,23 @@ namespace BitTile
 			};
 		}
 
-		private void HandleLeftMouseCommand(Image image)
+		private void LeftMouseDown(Image image)
+		{
+			_isMouseLeftPressed = true;
+			ChangeBitMap(image);
+		}
+
+		private void LeftMouseUp()
+		{
+			_isMouseLeftPressed = false;
+		}
+
+		private void MouseMove(Image image)
+		{
+			ChangeBitMap(image);
+		}
+
+		private void ChangeBitMap(Image image)
 		{
 			if (image is IInputElement element)
 			{
