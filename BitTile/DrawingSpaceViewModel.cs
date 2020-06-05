@@ -1,15 +1,13 @@
 ﻿using Microsoft.VisualStudio.PlatformUI;
 using System.ComponentModel;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
-using Point = System.Windows.Point;
 using Image = System.Windows.Controls.Image;
-using System.Threading.Tasks;
+using Point = System.Windows.Point;
 
 namespace BitTile
 {
@@ -24,6 +22,9 @@ namespace BitTile
 		private int _numberOfPixelsSize;
 		private int _sizeOfPixel;
 		private bool _isMouseLeftPressed;
+
+		private int _previous_x;
+		private int _previous_y;
 
 		private DelegateCommand<Image> _leftMouseDownCommand;
 		private DelegateCommand _leftMouseUpCommand;
@@ -292,6 +293,8 @@ namespace BitTile
 
 		private void LeftMouseUp()
 		{
+			_previous_x = -1;
+			_previous_y = -1;
 			_isMouseLeftPressed = false;
 		}
 
@@ -307,7 +310,12 @@ namespace BitTile
 				Point point = Mouse.GetPosition(element);
 				int x = (int)(point.X / SizeOfPixel) * SizeOfPixel;
 				int y = (int)(point.Y / SizeOfPixel) * SizeOfPixel;
-				BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, x, y, SizeOfPixel);
+				if(x != _previous_x || y != _previous_y)
+				{
+					_previous_y = y;
+					_previous_x = x;
+					BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, x, y, SizeOfPixel);
+				}
 			}
 		}
 	}

@@ -37,19 +37,26 @@ namespace BitTile
 			/*This time we convert the IntPtr to a ptr*/
 			byte* scan0 = (byte*)bData.Scan0.ToPointer();
 
-			for (int i = y; i < y + pixelSize; ++i)
+			byte* dataCheck = scan0 + y * bData.Stride + x * bit;
+			if (dataCheck[0] != newColor.B
+				|| dataCheck[1] != newColor.G
+				|| dataCheck[2] != newColor.R
+				|| dataCheck[3] != newColor.A)
 			{
-				byte* startPoint = scan0 + i * bData.Stride;
-
-				for (int j = x; j < x + pixelSize; ++j)
+				for (int i = y; i < y + pixelSize; ++i)
 				{
-					byte* data = startPoint + j * bit;
+					byte* startPoint = scan0 + i * bData.Stride;
 
-					//data is a pointer to the first byte of the 3-byte color data
-					data[0] = newColor.B;
-					data[1] = newColor.G;
-					data[2] = newColor.R;
-					data[3] = newColor.A;
+					for (int j = x; j < x + pixelSize; ++j)
+					{
+						byte* data = startPoint + j * bit;
+
+						//data is a pointer to the first byte of the 3-byte color data
+						data[0] = newColor.B;
+						data[1] = newColor.G;
+						data[2] = newColor.R;
+						data[3] = newColor.A;
+					}
 				}
 			}
 
