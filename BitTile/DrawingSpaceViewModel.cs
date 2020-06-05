@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Point = System.Windows.Point;
 using Image = System.Windows.Controls.Image;
+using System.Threading.Tasks;
 
 namespace BitTile
 {
@@ -44,9 +45,9 @@ namespace BitTile
 			SizeOfPixel = 10;
 			NumberOfPixelsSize = 64;
 			_colors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
-			for(int i = 0; i < NumberOfPixelsSize; i++)
+			for (int i = 0; i < NumberOfPixelsSize; i++)
 			{
-				for(int j = 0; j < NumberOfPixelsSize; j++)
+				for (int j = 0; j < NumberOfPixelsSize; j++)
 				{
 					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
 				}
@@ -59,7 +60,7 @@ namespace BitTile
 			get { return _leftMouseDownCommand; }
 			set
 			{
-				if(value != _leftMouseDownCommand)
+				if (value != _leftMouseDownCommand)
 				{
 					_leftMouseDownCommand = value;
 					NotifyPropertyChanged();
@@ -177,7 +178,7 @@ namespace BitTile
 			get { return _colors; }
 			private set
 			{
-				if(value != _colors)
+				if (value != _colors)
 				{
 					_colors = value;
 					NotifyPropertyChanged();
@@ -191,7 +192,7 @@ namespace BitTile
 			get { return _height; }
 			private set
 			{
-				if(value != _height)
+				if (value != _height)
 				{
 					_height = value;
 					NotifyPropertyChanged();
@@ -205,7 +206,7 @@ namespace BitTile
 			get { return _width; }
 			private set
 			{
-				if(value != _width)
+				if (value != _width)
 				{
 					_width = value;
 					NotifyPropertyChanged();
@@ -219,7 +220,7 @@ namespace BitTile
 			get { return _numberOfPixelsSize; }
 			set
 			{
-				if(value != _numberOfPixelsSize)
+				if (value != _numberOfPixelsSize)
 				{
 					_numberOfPixelsSize = value;
 					_colors = new Color[_numberOfPixelsSize, _numberOfPixelsSize];
@@ -234,11 +235,11 @@ namespace BitTile
 			get { return _sizeOfPixel; }
 			set
 			{
-				if(value != _sizeOfPixel)
+				if (value != _sizeOfPixel)
 				{
 					_sizeOfPixel = value;
 					NotifyPropertyChanged();
-					TopLeft = new Point(0,0);
+					TopLeft = new Point(0, 0);
 					TopRight = new Point(0, _sizeOfPixel);
 					BottomRight = new Point(_sizeOfPixel, _sizeOfPixel);
 					BottomLeft = new Point(_sizeOfPixel, 0);

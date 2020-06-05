@@ -1,4 +1,5 @@
 ﻿using ExtensionMethods;
+using MathNet.Numerics.Optimization;
 using System.ComponentModel;
 using System.Windows;
 
@@ -9,11 +10,15 @@ namespace BitTile
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private ColorPickerViewModel _colorPickerViewModel = new ColorPickerViewModel();
-		private ColorPicker _colorPicker = new ColorPicker();
+		private readonly ColorPickerViewModel _colorPickerViewModel = new ColorPickerViewModel();
+		private readonly ColorPicker _colorPicker = new ColorPicker();
 
-		private DrawingSpaceViewModel _drawingSpaceViewModel = new DrawingSpaceViewModel();
-		private DrawingSpace _drawingSpace = new DrawingSpace();
+		private readonly DrawingSpaceViewModel _drawingSpaceViewModel = new DrawingSpaceViewModel();
+		private readonly DrawingSpace _drawingSpace = new DrawingSpace();
+
+		private readonly Options _options = new Options();
+		private readonly OptionsViewModel _optionsViewModel = new OptionsViewModel();
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -24,7 +29,19 @@ namespace BitTile
 			Middle.Children.Add(_drawingSpace);
 			_drawingSpaceViewModel.SetColorOfPen(_colorPickerViewModel.LeftMouseSelectedColor.ConvertMediaColorToDrawingColor());
 
+			_options.DataContext = _optionsViewModel;
+			LeftHandSide.Children.Add(_options);
+
 			_colorPickerViewModel.PropertyChanged += ColorPickerPropertyChanged;
+			_drawingSpaceViewModel.PropertyChanged += DrawingSpaceViewModelPropertyChanged;
+		}
+
+		private void DrawingSpaceViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(_drawingSpaceViewModel.BitTile))
+			{
+				_optionsViewModel.DrawnImage = _drawingSpaceViewModel.BitTile;
+			}
 		}
 
 		private void ColorPickerPropertyChanged(object sender, PropertyChangedEventArgs e)

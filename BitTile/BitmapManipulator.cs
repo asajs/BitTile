@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
-
 
 namespace BitTile
 {
@@ -28,18 +28,22 @@ namespace BitTile
 		public static unsafe BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, int x, int y, int pixelSize)
 		{
 			Bitmap b = GetBitmap(source);
+
 			BitmapData bData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.ReadWrite, b.PixelFormat);
 
 			byte bitsPerPixel = Convert.ToByte(Image.GetPixelFormatSize(bData.PixelFormat));
+			int bit = bitsPerPixel / 8;
 
 			/*This time we convert the IntPtr to a ptr*/
 			byte* scan0 = (byte*)bData.Scan0.ToPointer();
 
 			for (int i = y; i < y + pixelSize; ++i)
 			{
+				byte* startPoint = scan0 + i * bData.Stride;
+
 				for (int j = x; j < x + pixelSize; ++j)
 				{
-					byte* data = scan0 + i * bData.Stride + j * bitsPerPixel / 8;
+					byte* data = startPoint + j * bit;
 
 					//data is a pointer to the first byte of the 3-byte color data
 					data[0] = newColor.B;
