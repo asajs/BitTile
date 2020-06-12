@@ -19,6 +19,8 @@ namespace BitTile
 		private readonly Options _options = new Options();
 		private readonly OptionsViewModel _optionsViewModel = new OptionsViewModel();
 
+		private readonly FileHandler _fileHandler = new FileHandler();
+
 		public DelegateCommand CtrlZCommand { get; set; }
 		public DelegateCommand CtrlSCommand { get; set; }
 		public DelegateCommand CtrlACommand { get; set; }
@@ -59,7 +61,7 @@ namespace BitTile
 
 		private void CtrlA()
 		{
-
+			_fileHandler.SaveAs(_drawingSpaceViewModel.SmallBitTile);
 		}
 
 		private void CtrlN()
@@ -74,14 +76,14 @@ namespace BitTile
 
 		private void CtrlS()
 		{
-
+			_fileHandler.Save(_drawingSpaceViewModel.SmallBitTile);
 		}
 
 		private void DrawingSpaceViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(_drawingSpaceViewModel.BitTile))
 			{
-				_optionsViewModel.DrawnImage = _drawingSpaceViewModel.BitTile;
+				_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
 			}
 		}
 

@@ -168,7 +168,8 @@ namespace BitTile
 			{
 				if (value != _hueSliderValue)
 				{
-					_hueSliderValue = value.Clamp(0, 360);
+					_hueSliderValue = value;
+					_hueSliderValue.Clamp(0, 360);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
 					HueSelectedColor = ColorHelper.HslaToRgba(HueSliderValue, 100, 50, 100);
@@ -190,7 +191,8 @@ namespace BitTile
 			{
 				if (value != _saturationSliderValue)
 				{
-					_saturationSliderValue = value.Clamp(0, 100);
+					_saturationSliderValue = value;
+					_saturationSliderValue.Clamp(0, 100);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
 					ColorDiamondSelectionCircle.X = CalculateDiamondX(SaturationSliderValue);
@@ -209,7 +211,8 @@ namespace BitTile
 			{
 				if (value != _luminositySliderValue)
 				{
-					_luminositySliderValue = value.Clamp(0, 100);
+					_luminositySliderValue = value;
+					_luminositySliderValue.Clamp(0, 100);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
 					ColorDiamondSelectionCircle.X = CalculateDiamondX(SaturationSliderValue);
@@ -229,7 +232,8 @@ namespace BitTile
 			{
 				if (value != _alphaSliderValue)
 				{
-					_alphaSliderValue = value.Clamp(0, 100);
+					_alphaSliderValue = value;
+					_alphaSliderValue.Clamp(0, 100);
 					Color newColor = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue, AlphaSliderValue);
 					LeftMouseSelectedColor = newColor;
 					NotifyPropertyChanged();

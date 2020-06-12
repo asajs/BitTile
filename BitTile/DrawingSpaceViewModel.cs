@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.PlatformUI;
+﻿using ExtensionMethods;
+using Microsoft.VisualStudio.PlatformUI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -16,7 +18,7 @@ namespace BitTile
 	public class DrawingSpaceViewModel : INotifyPropertyChanged
 	{
 		#region Private Fields
-		private Stack<BitmapSource> _undo;
+		private Stack<Color[,]> _undo;
 		private BitmapSource _bitTile;
 		private TileBrush _tileBrush;
 		private Color[,] _colors;
@@ -27,8 +29,8 @@ namespace BitTile
 		private int _sizeOfPixel;
 		private bool _isMouseLeftPressed;
 
-		private int _previous_x;
-		private int _previous_y;
+		private int _previous_x = -1;
+		private int _previous_y = -1;
 
 		private DelegateCommand<Image> _leftMouseDownCommand;
 		private DelegateCommand _leftMouseUpCommand;
@@ -48,11 +50,11 @@ namespace BitTile
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
 			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
 
-			_undo = new Stack<BitmapSource>();
+			_undo = new Stack<Color[,]>();
 
 			SizeOfPixel = 10;
 			NumberOfPixelsSize = 64;
-			_colors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
+			Colors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
 			for (int i = 0; i < NumberOfPixelsSize; i++)
 			{
 				for (int j = 0; j < NumberOfPixelsSize; j++)
@@ -60,6 +62,7 @@ namespace BitTile
 					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
 				}
 			}
+			SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, NumberOfPixelsSize, NumberOfPixelsSize);
 			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
 		}
 
@@ -117,6 +120,8 @@ namespace BitTile
 				}
 			}
 		}
+
+		public BitmapSource SmallBitTile { get; set; }
 
 		public Point TopLeft
 		{
@@ -276,8 +281,9 @@ namespace BitTile
 		{
 			if (_undo.Count > 0)
 			{
-				BitmapSource previous = _undo.Pop();
-				BitTile = previous;
+				Colors = _undo.Pop();
+				SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, NumberOfPixelsSize, NumberOfPixelsSize);
+				BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
 			}
 		}
 
@@ -290,6 +296,7 @@ namespace BitTile
 					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
 				}
 			}
+			SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, NumberOfPixelsSize, NumberOfPixelsSize);
 			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
 			_undo.Clear();
 		}
@@ -322,7 +329,15 @@ namespace BitTile
 		private void LeftMouseDown(Image image)
 		{
 			_isMouseLeftPressed = true;
-			_undo.Push(BitmapManipulator.DeepCopyImage(image));
+			Color[,] newColors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
+			for (int i = 0; i < NumberOfPixelsSize; i++)
+			{
+				for (int j = 0; j < NumberOfPixelsSize; j++)
+				{
+					newColors[i, j] = Colors[i, j];
+				}
+			}
+			_undo.Push(newColors);
 			ChangeBitMap(image);
 		}
 
@@ -345,10 +360,16 @@ namespace BitTile
 				Point point = Mouse.GetPosition(element);
 				int x = (int)(point.X / SizeOfPixel) * SizeOfPixel;
 				int y = (int)(point.Y / SizeOfPixel) * SizeOfPixel;
-				if(x != _previous_x || y != _previous_y)
+				int colorX = x / SizeOfPixel;
+				int colorY = y / SizeOfPixel;
+				colorX.Clamp(0, NumberOfPixelsSize - 1);
+				colorY.Clamp(0, NumberOfPixelsSize - 1);
+				Colors[colorX, colorY] = _currentColor;
+				if (colorX != _previous_x || colorY != _previous_y)
 				{
-					_previous_y = y;
-					_previous_x = x;
+					_previous_y = colorY;
+					_previous_x = colorX;
+					SmallBitTile = BitmapManipulator.EditTileOfBitmap(SmallBitTile, _currentColor, colorX, colorY, 1);
 					BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, x, y, SizeOfPixel);
 				}
 			}

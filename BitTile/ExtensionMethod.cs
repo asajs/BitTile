@@ -97,7 +97,7 @@ namespace ExtensionMethods
 			return bitmap;
 		}
 
-		public static int Clamp(this int value, int min, int max)
+		public static void Clamp(ref this int value, int min, int max)
 		{
 			if (value > max)
 			{
@@ -107,10 +107,9 @@ namespace ExtensionMethods
 			{
 				value = min;
 			}
-			return value;
 		}
 
-		public static double Clamp(this double value, double min, double max)
+		public static void Clamp(ref this double value, double min, double max)
 		{
 			if (value > max)
 			{
@@ -120,7 +119,6 @@ namespace ExtensionMethods
 			{
 				value = min;
 			}
-			return value;
 		}
 	}
 }
