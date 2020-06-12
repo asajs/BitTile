@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.PlatformUI;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -13,6 +15,8 @@ namespace BitTile
 {
 	public class DrawingSpaceViewModel : INotifyPropertyChanged
 	{
+		#region Private Fields
+		private Stack<BitmapSource> _undo;
 		private BitmapSource _bitTile;
 		private TileBrush _tileBrush;
 		private Color[,] _colors;
@@ -35,6 +39,7 @@ namespace BitTile
 		private Point _topRight;
 		private Point _bottomLeft;
 		private Point _bottomRight;
+		#endregion
 
 		public DrawingSpaceViewModel()
 		{
@@ -42,6 +47,8 @@ namespace BitTile
 			LeftMouseDownCommand = new DelegateCommand<Image>((image) => LeftMouseDown(image));
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
 			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
+
+			_undo = new Stack<BitmapSource>();
 
 			SizeOfPixel = 10;
 			NumberOfPixelsSize = 64;
@@ -56,6 +63,7 @@ namespace BitTile
 			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
 		}
 
+		#region Commands
 		public DelegateCommand<Image> LeftMouseDownCommand
 		{
 			get { return _leftMouseDownCommand; }
@@ -94,8 +102,9 @@ namespace BitTile
 				}
 			}
 		}
+		#endregion
 
-
+		#region Properties
 		public BitmapSource BitTile
 		{
 			get { return _bitTile; }
@@ -187,7 +196,6 @@ namespace BitTile
 			}
 		}
 
-
 		public int Height
 		{
 			get { return _height; }
@@ -261,15 +269,41 @@ namespace BitTile
 				}
 			}
 		}
+		#endregion
 
+		#region Public Methods
+		public void Undo()
+		{
+			if (_undo.Count > 0)
+			{
+				BitmapSource previous = _undo.Pop();
+				BitTile = previous;
+			}
+		}
+
+		public void New()
+		{
+			for (int i = 0; i < NumberOfPixelsSize; i++)
+			{
+				for (int j = 0; j < NumberOfPixelsSize; j++)
+				{
+					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
+				}
+			}
+			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
+			_undo.Clear();
+		}
 
 		public void SetColorOfPen(Color color)
 		{
 			_currentColor = color;
 		}
 
+		#endregion
+
 		public event PropertyChangedEventHandler PropertyChanged;
 
+		#region Private Methods
 		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -288,6 +322,7 @@ namespace BitTile
 		private void LeftMouseDown(Image image)
 		{
 			_isMouseLeftPressed = true;
+			_undo.Push(BitmapManipulator.DeepCopyImage(image));
 			ChangeBitMap(image);
 		}
 
@@ -318,5 +353,6 @@ namespace BitTile
 				}
 			}
 		}
+		#endregion
 	}
 }

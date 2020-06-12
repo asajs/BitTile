@@ -1,5 +1,5 @@
 ﻿using ExtensionMethods;
-using MathNet.Numerics.Optimization;
+using Microsoft.VisualStudio.PlatformUI;
 using System.ComponentModel;
 using System.Windows;
 
@@ -19,9 +19,25 @@ namespace BitTile
 		private readonly Options _options = new Options();
 		private readonly OptionsViewModel _optionsViewModel = new OptionsViewModel();
 
+		public DelegateCommand CtrlZCommand { get; set; }
+		public DelegateCommand CtrlSCommand { get; set; }
+		public DelegateCommand CtrlACommand { get; set; }
+		public DelegateCommand CtrlOCommand { get; set; }
+		public DelegateCommand CtrlNCommand { get; set; }
+
+
 		public MainWindow()
 		{
+			CtrlZCommand = new DelegateCommand(() => CtrlZ());
+			CtrlACommand = new DelegateCommand(() => CtrlA());
+			CtrlSCommand = new DelegateCommand(() => CtrlS());
+			CtrlOCommand = new DelegateCommand(() => CtrlO());
+			CtrlNCommand = new DelegateCommand(() => CtrlN());
+
+
 			InitializeComponent();
+			DataContext = this;
+
 			_colorPicker.DataContext = _colorPickerViewModel;
 			RightHandSide.Children.Add(_colorPicker);
 
@@ -34,6 +50,31 @@ namespace BitTile
 
 			_colorPickerViewModel.PropertyChanged += ColorPickerPropertyChanged;
 			_drawingSpaceViewModel.PropertyChanged += DrawingSpaceViewModelPropertyChanged;
+		}
+
+		private void CtrlZ()
+		{
+			_drawingSpaceViewModel.Undo();
+		}
+
+		private void CtrlA()
+		{
+
+		}
+
+		private void CtrlN()
+		{
+			_drawingSpaceViewModel.New();
+		}
+
+		private void CtrlO()
+		{
+
+		}
+
+		private void CtrlS()
+		{
+
 		}
 
 		private void DrawingSpaceViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

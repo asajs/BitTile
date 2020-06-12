@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -64,6 +65,11 @@ namespace BitTile
 
 			return CreateBitmapSourceFromGdiBitmap(b);
 		}
+		
+		public static BitmapSource DeepCopyImage(System.Windows.Controls.Image image)
+		{
+			return (BitmapSource)image.Source.Clone();
+		}
 
 		//public static unsafe BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, int x, int y, int pixelSize)
 		//{
@@ -101,6 +107,7 @@ namespace BitTile
 
 		//	return CreateBitmapSourceFromGdiBitmap(b);
 		//}
+
 
 		private static Bitmap GetBitmap(BitmapSource source)
 		{

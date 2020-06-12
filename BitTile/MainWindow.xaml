@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:BitTile"
         mc:Ignorable="d"
         Title="BitTile" Background="#ABABAB">
@@ -19,6 +20,23 @@
 			</MenuItem>
 		</Menu>
 		<Grid>
+			<b:Interaction.Triggers>
+				<b:KeyTrigger Key="Z" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlZCommand}"/>
+				</b:KeyTrigger>
+				<b:KeyTrigger Key="S" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlSCommand}"/>
+				</b:KeyTrigger>
+				<b:KeyTrigger Key="A" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlACommand}"/>
+				</b:KeyTrigger>
+				<b:KeyTrigger Key="N" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlNCommand}"/>
+				</b:KeyTrigger>
+				<b:KeyTrigger Key="O" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlOCommand}"/>
+				</b:KeyTrigger>
+			</b:Interaction.Triggers>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="250"/>
 				<ColumnDefinition Width="*"/>
