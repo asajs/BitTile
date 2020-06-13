@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.PlatformUI;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace BitTile
 {
@@ -71,7 +72,11 @@ namespace BitTile
 
 		private void CtrlO()
 		{
-
+			BitmapSource source = _fileHandler.Open();
+			if(source != null)
+			{
+				_drawingSpaceViewModel.HandleSource(source);
+			}
 		}
 
 		private void CtrlS()

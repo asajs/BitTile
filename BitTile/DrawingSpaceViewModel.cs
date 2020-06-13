@@ -301,6 +301,14 @@ namespace BitTile
 			_undo.Clear();
 		}
 
+		public void HandleSource(BitmapSource source)
+		{
+			Color[,] samples = BitmapManipulator.SampleBitmapSource(source, NumberOfPixelsSize, NumberOfPixelsSize);
+			SmallBitTile = BitmapManipulator.CreateBitTile(samples, 1, NumberOfPixelsSize, NumberOfPixelsSize);
+			BitTile = BitmapManipulator.CreateBitTile(samples, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
+			_undo.Clear();
+		}
+
 		public void SetColorOfPen(Color color)
 		{
 			_currentColor = color;

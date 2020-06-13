@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace BitTile
@@ -20,7 +22,7 @@ namespace BitTile
 		{
 			if(string.IsNullOrWhiteSpace(_pathName))
 			{
-				_pathName = GetPathFromUser();
+				_pathName = GetSavePathFromUser();
 			}
 			if(!string.IsNullOrWhiteSpace(_pathName))
 			{
@@ -30,7 +32,7 @@ namespace BitTile
 
 		public void SaveAs(BitmapSource source)
 		{
-			_pathName = GetPathFromUser();
+			_pathName = GetSavePathFromUser();
 			if(!string.IsNullOrWhiteSpace(_pathName))
 			{
 				SaveImage(source);
@@ -39,18 +41,28 @@ namespace BitTile
 
 		public BitmapSource Open()
 		{
-			return null;
-		}
-
-		private string GetPathFromUser()
-		{
-			SaveFileDialog dialog = new SaveFileDialog()
+			OpenFileDialog open = new OpenFileDialog()
 			{
 				Filter = "PNG (*.png)|*.png"
 			};
-			if (dialog.ShowDialog() == true)
+			BitmapSource source = null;
+			if(open.ShowDialog() == true)
 			{
-				return dialog.FileName;
+				_pathName = open.FileName;
+				source = new BitmapImage(new Uri(_pathName));
+			}
+			return source;
+		}
+
+		private string GetSavePathFromUser()
+		{
+			SaveFileDialog save = new SaveFileDialog()
+			{
+				Filter = "PNG (*.png)|*.png"
+			};
+			if (save.ShowDialog() == true)
+			{
+				return save.FileName;
 			}
 			return _pathName;
 		}

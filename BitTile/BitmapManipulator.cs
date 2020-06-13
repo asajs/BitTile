@@ -108,6 +108,75 @@ namespace BitTile
 			return CreateBitmapSourceFromGdiBitmap(b);
 		}
 
+		public static Color[,] SampleBitmapSource(BitmapSource source, int destWidth, int destHeight)
+		{
+			Bitmap bitmap = GetBitmap(source);
+
+			BitmapData bData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+			byte bitsPerPixel = Convert.ToByte(Image.GetPixelFormatSize(bData.PixelFormat));
+
+			int size = bData.Stride * bData.Height;
+
+			int widthFactor = bData.Width / destWidth;
+			int heightFactor = bData.Height / destHeight;
+
+			byte[] data = new byte[size];
+			int bits = bitsPerPixel / 8;
+
+			Color[,] colors = new Color[destWidth, destHeight];
+
+			Marshal.Copy(bData.Scan0, data, 0, size);
+
+			for (int y = 0; y < destHeight; y++)
+			{
+				for(int x = 0; x < destWidth; x++)
+				{
+					colors[x, y] = SampleRegion(data, widthFactor, heightFactor, x, y, bits, bData.Stride);
+				}
+			}
+
+			bitmap.UnlockBits(bData);
+
+			return colors;
+		}
+
+		private static Color SampleRegion(byte[] data, int widthFactor, int heightFactor, int startX, int startY, int incrementX, int incrementY)
+		{
+			int redSample = 0;
+			int greenSample = 0;
+			int blueSample = 0;
+			int alphaSample = 0;
+			int startPointY = startY * heightFactor * incrementY;
+			int startPointX = startX * widthFactor * incrementX;
+			int endPointY = startPointY + heightFactor * incrementY;
+			int endPointX = startPointX + widthFactor * incrementX;
+			for (int y = startPointY; y < endPointY; y += incrementY)
+			{
+				for(int x = startPointX; x < endPointX; x += incrementX)
+				{
+					blueSample += data[y + x];
+					greenSample += data[y + x + 1];
+					redSample += data[y + x + 2];
+					alphaSample += data[y + x + 3];
+				}
+			}
+
+			int averagingComponent = heightFactor * widthFactor;
+
+			redSample /= averagingComponent;
+			greenSample /= averagingComponent;
+			blueSample /= averagingComponent;
+			alphaSample /= averagingComponent;
+
+			byte r = Convert.ToByte(redSample);
+			byte g = Convert.ToByte(greenSample);
+			byte b = Convert.ToByte(blueSample);
+			byte a = Convert.ToByte(alphaSample);
+
+			Color color = Color.FromArgb(a, r, g, b);
+			return color;
+		}
+
 		private static Bitmap GetBitmap(BitmapSource source)
 		{
 			Bitmap bmp = new Bitmap(
