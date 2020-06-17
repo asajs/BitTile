@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
+using BitTile.Common;
 
 namespace BitTile
 {

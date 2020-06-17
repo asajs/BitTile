@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.PlatformUI;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using BitTile.Common;
 
 namespace BitTile
 {
@@ -31,7 +32,6 @@ namespace BitTile
 		public DelegateCommand CtrlOCommand { get; set; }
 		public DelegateCommand CtrlNCommand { get; set; }
 		public DelegateCommand ExitCommand { get; set; }
-
 
 		public MainWindow()
 		{
