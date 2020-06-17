@@ -22,11 +22,15 @@ namespace BitTile
 
 		private readonly FileHandler _fileHandler = new FileHandler();
 
+		private bool _saveUpToDate = true;
+		private bool _alreadyRanExitCommand = false;
+
 		public DelegateCommand CtrlZCommand { get; set; }
 		public DelegateCommand CtrlSCommand { get; set; }
 		public DelegateCommand CtrlACommand { get; set; }
 		public DelegateCommand CtrlOCommand { get; set; }
 		public DelegateCommand CtrlNCommand { get; set; }
+		public DelegateCommand ExitCommand { get; set; }
 
 
 		public MainWindow()
@@ -36,7 +40,7 @@ namespace BitTile
 			CtrlSCommand = new DelegateCommand(() => CtrlS());
 			CtrlOCommand = new DelegateCommand(() => CtrlO());
 			CtrlNCommand = new DelegateCommand(() => CtrlN());
-
+			ExitCommand = new DelegateCommand(() => Exit());
 
 			InitializeComponent();
 			DataContext = this;
@@ -62,7 +66,7 @@ namespace BitTile
 
 		private void CtrlA()
 		{
-			_fileHandler.SaveAs(_drawingSpaceViewModel.SmallBitTile);
+			_saveUpToDate = _fileHandler.SaveAs(_drawingSpaceViewModel.SmallBitTile);
 		}
 
 		private void CtrlN()
@@ -73,30 +77,55 @@ namespace BitTile
 		private void CtrlO()
 		{
 			BitmapSource source = _fileHandler.Open();
-			if(source != null)
+			if (source != null)
 			{
 				_drawingSpaceViewModel.HandleSource(source);
 			}
+			_saveUpToDate = true;
 		}
 
 		private void CtrlS()
 		{
-			_fileHandler.Save(_drawingSpaceViewModel.SmallBitTile);
+			_saveUpToDate = _fileHandler.Save(_drawingSpaceViewModel.SmallBitTile);
+		}
+
+		private void Exit()
+		{
+			if (!_saveUpToDate)
+			{
+				MessageBoxResult result = MessageBox.Show("Do you want to save this image?", "Save image", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+				if (result == MessageBoxResult.Yes)
+				{
+					_fileHandler.SaveAs(_drawingSpaceViewModel.SmallBitTile);
+				}
+			}
+			_alreadyRanExitCommand = true;
+			Application.Current.Shutdown();
 		}
 
 		private void DrawingSpaceViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(_drawingSpaceViewModel.BitTile))
+			if (e.PropertyName == nameof(_drawingSpaceViewModel.BitTile))
 			{
 				_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
+				_saveUpToDate = false;
 			}
 		}
 
 		private void ColorPickerPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(_colorPickerViewModel.LeftMouseSelectedColor))
+			if (e.PropertyName == nameof(_colorPickerViewModel.LeftMouseSelectedColor))
 			{
 				_drawingSpaceViewModel.SetColorOfPen(_colorPickerViewModel.LeftMouseSelectedColor.ConvertMediaColorToDrawingColor());
+			}
+		}
+
+		private void Window_Closing(object sender, CancelEventArgs e)
+		{
+			if (!_alreadyRanExitCommand)
+			{
+				ExitCommand?.Execute(null);
 			}
 		}
 	}

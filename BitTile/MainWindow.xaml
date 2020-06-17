@@ -6,23 +6,28 @@
 		xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:BitTile"
         mc:Ignorable="d"
-        Title="BitTile" Background="#ABABAB">
+        Title="BitTile" 
+		Background="#ABABAB"
+		Closing="Window_Closing">
 
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="_File">
-				<MenuItem Header="_New"/>
-				<MenuItem Header="_Open"/>
-				<MenuItem Header="_Save"/>
-				<MenuItem Header="Save _As"/>
+				<MenuItem Header="_New" Command="{Binding CtrlNCommand}"/>
+				<MenuItem Header="_Open" Command="{Binding CtrlOCommand}"/>
+				<MenuItem Header="_Save" Command="{Binding CtrlSCommand}"/>
+				<MenuItem Header="Save _As" Command="{Binding CtrlACommand}"/>
 				<Separator/>
-				<MenuItem Header="_Exit"/>
+				<MenuItem Header="_Exit" Command="{Binding ExitCommand}"/>
 			</MenuItem>
 		</Menu>
 		<Grid>
 			<b:Interaction.Triggers>
-				<b:KeyTrigger Key="Z" Modifiers="Ctrl">
-					<b:InvokeCommandAction Command="{Binding CtrlZCommand}"/>
+				<b:KeyTrigger Key="N" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlNCommand}"/>
+				</b:KeyTrigger>
+				<b:KeyTrigger Key="O" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlOCommand}"/>
 				</b:KeyTrigger>
 				<b:KeyTrigger Key="S" Modifiers="Ctrl">
 					<b:InvokeCommandAction Command="{Binding CtrlSCommand}"/>
@@ -30,11 +35,8 @@
 				<b:KeyTrigger Key="A" Modifiers="Ctrl">
 					<b:InvokeCommandAction Command="{Binding CtrlACommand}"/>
 				</b:KeyTrigger>
-				<b:KeyTrigger Key="N" Modifiers="Ctrl">
-					<b:InvokeCommandAction Command="{Binding CtrlNCommand}"/>
-				</b:KeyTrigger>
-				<b:KeyTrigger Key="O" Modifiers="Ctrl">
-					<b:InvokeCommandAction Command="{Binding CtrlOCommand}"/>
+				<b:KeyTrigger Key="Z" Modifiers="Ctrl">
+					<b:InvokeCommandAction Command="{Binding CtrlZCommand}"/>
 				</b:KeyTrigger>
 			</b:Interaction.Triggers>
 			<Grid.ColumnDefinitions>

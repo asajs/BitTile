@@ -18,7 +18,7 @@ namespace BitTile
 			_pathName = string.Empty;
 		}
 
-		public void Save(BitmapSource source)
+		public bool Save(BitmapSource source)
 		{
 			if(string.IsNullOrWhiteSpace(_pathName))
 			{
@@ -26,17 +26,19 @@ namespace BitTile
 			}
 			if(!string.IsNullOrWhiteSpace(_pathName))
 			{
-				SaveImage(source);
+				return SaveImage(source);
 			}
+			return false;
 		}
 
-		public void SaveAs(BitmapSource source)
+		public bool SaveAs(BitmapSource source)
 		{
 			_pathName = GetSavePathFromUser();
 			if(!string.IsNullOrWhiteSpace(_pathName))
 			{
-				SaveImage(source);
+				return SaveImage(source);
 			}
+			return false;
 		}
 
 		public BitmapSource Open()
@@ -67,13 +69,21 @@ namespace BitTile
 			return _pathName;
 		}
 
-		private void SaveImage(BitmapSource source)
+		private bool SaveImage(BitmapSource source)
 		{
-			using(FileStream filestream = new FileStream(_pathName, FileMode.Create))
+			try
 			{
-				BitmapEncoder encoder = new PngBitmapEncoder();
-				encoder.Frames.Add(BitmapFrame.Create(source));
-				encoder.Save(filestream);
+				using (FileStream filestream = new FileStream(_pathName, FileMode.Create))
+				{
+					BitmapEncoder encoder = new PngBitmapEncoder();
+					encoder.Frames.Add(BitmapFrame.Create(source));
+					encoder.Save(filestream);
+					return true;
+				}
+			}
+			catch
+			{
+				return false;
 			}
 		}
 	}
