@@ -37,7 +37,7 @@ namespace BitTile
 
 			HueSliderValue = 180;
 			SaturationSliderValue = 100;
-			LuminositySliderValue = 50;
+			LuminositySliderValue = 0;
 			AlphaSliderValue = 100;
 			SetStaticColors();
 			ColorWheelImage = ColorWheel.Create();
@@ -77,7 +77,6 @@ namespace BitTile
 		{
 			get { return DIAMOND_SIZE; }
 		}
-
 
 		#region Colors
 		public Color LeftMouseSelectedColor

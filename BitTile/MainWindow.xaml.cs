@@ -57,6 +57,8 @@ namespace BitTile
 
 			_colorPickerViewModel.PropertyChanged += ColorPickerPropertyChanged;
 			_drawingSpaceViewModel.PropertyChanged += DrawingSpaceViewModelPropertyChanged;
+
+			_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
 		}
 
 		private void CtrlZ()
