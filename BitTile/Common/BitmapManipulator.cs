@@ -129,7 +129,7 @@ namespace BitTile.Common
 
 			for (int y = 0; y < destHeight; y++)
 			{
-				for(int x = 0; x < destWidth; x++)
+				for (int x = 0; x < destWidth; x++)
 				{
 					colors[y, x] = SampleRegion(data, heightFactor, widthFactor, y, x, bData.Stride, bits);
 				}
@@ -152,7 +152,7 @@ namespace BitTile.Common
 			int endPointX = startPointX + widthFactor * incrementX;
 			for (int y = startPointY; y < endPointY; y += incrementY)
 			{
-				for(int x = startPointX; x < endPointX; x += incrementX)
+				for (int x = startPointX; x < endPointX; x += incrementX)
 				{
 					blueSample += data[y + x];
 					greenSample += data[y + x + 1];

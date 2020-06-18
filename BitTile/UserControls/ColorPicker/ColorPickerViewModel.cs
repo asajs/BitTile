@@ -16,12 +16,33 @@ namespace BitTile
 {
 	public class ColorPickerViewModel : INotifyPropertyChanged
 	{
+		#region Fields
 		private readonly double _wheelOffsetSelectionCircleToMiddle = 107;
 		private readonly double _wheelImageSize = 250;
 		private readonly double _beginningOfWheel = 95;
 		private const int DIAMOND_SIZE = 150;
 		private const double DIAMOND_MULTIPLY_SCALE = (double)DIAMOND_SIZE / 100;
 		private const double DIAMOND_DIVIDE_SCALE = 100 / (double)DIAMOND_SIZE;
+
+		private BitmapSource _colorWheelImage;
+		private BitmapSource _colorDiamondImage;
+		private SelectionCircle _colorWheelSelectionCircle;
+		private SelectionCircle _colorDiamondSelectionCircle;
+
+		private Color _leftMouseSelectedColor;
+		private Color _hueSelectedColor;
+		private Color _satZeroColor;
+		private Color _lueBlackColor;
+		private Color _lueWhiteColor;
+
+		private int _hueSliderValue;
+		private int _saturationSliderValue;
+		private int _luminositySliderValue;
+		private int _alphaSliderValue;
+
+		private bool _isLeftMouseOnWheelPressed;
+		private bool _isLeftMouseOnDiamondPressed;
+		#endregion
 
 		public ColorPickerViewModel()
 		{
@@ -42,36 +63,7 @@ namespace BitTile
 			SetStaticColors();
 			ColorWheelImage = ColorWheel.Create();
 			ColorDiamondImage = ColorDiamond.Create(HueSelectedColor, DIAMOND_SIZE);
-
 		}
-
-		private DelegateCommand<Image> _leftMouseDownOnDiamondCommand;
-		private DelegateCommand _leftMouseUpOnDiamondCommand;
-		private DelegateCommand<Image> _mouseMoveOnDiamondCommand;
-
-		private DelegateCommand<Image> _leftMouseDownOnWheelCommand;
-		private DelegateCommand _leftMouseUpOnWheelCommand;
-		private DelegateCommand<Image> _mouseMoveOnWheelCommand;
-
-		private BitmapSource _colorWheelImage;
-		private BitmapSource _colorDiamondImage;
-		private SelectionCircle _colorWheelSelectionCircle;
-		private SelectionCircle _colorDiamondSelectionCircle;
-
-		private Color _leftMouseSelectedColor;
-		private Color _hueSelectedColor;
-		private Color _satZeroColor;
-		private Color _lueBlackColor;
-		private Color _lueWhiteColor;
-
-		private int _hueSliderValue;
-		private int _saturationSliderValue;
-		private int _luminositySliderValue;
-		private int _alphaSliderValue;
-
-		private bool _isLeftMouseOnWheelPressed;
-		private bool _isLeftMouseOnDiamondPressed;
-
 
 		public int DiamondLengthOfSide
 		{
@@ -309,101 +301,19 @@ namespace BitTile
 		}
 		#endregion Images
 
-		public DelegateCommand<Image> LeftMouseDownOnWheelCommand
-		{
-			get
-			{
-				return _leftMouseDownOnWheelCommand;
-			}
-			set
-			{
-				if (value != _leftMouseDownOnWheelCommand)
-				{
-					_leftMouseDownOnWheelCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		#region Commands
+		public DelegateCommand<Image> LeftMouseDownOnWheelCommand { get; set; }
 
-		public DelegateCommand LeftMouseUpOnWheelCommand
-		{
-			get
-			{
-				return _leftMouseUpOnWheelCommand;
-			}
-			set
-			{
-				if (value != _leftMouseUpOnWheelCommand)
-				{
-					_leftMouseUpOnWheelCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand LeftMouseUpOnWheelCommand { get; set; }
 
-		public DelegateCommand<Image> MouseMoveOnWheelCommand
-		{
-			get
-			{
-				return _mouseMoveOnWheelCommand;
-			}
-			set
-			{
-				if (value != _mouseMoveOnWheelCommand)
-				{
-					_mouseMoveOnWheelCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand<Image> MouseMoveOnWheelCommand { get; set; }
 
-		public DelegateCommand<Image> LeftMouseDownOnDiamondCommand
-		{
-			get
-			{
-				return _leftMouseDownOnDiamondCommand;
-			}
-			set
-			{
-				if (value != _leftMouseDownOnDiamondCommand)
-				{
-					_leftMouseDownOnDiamondCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand<Image> LeftMouseDownOnDiamondCommand { get; set; }
 
-		public DelegateCommand LeftMouseUpOnDiamondCommand
-		{
-			get
-			{
-				return _leftMouseUpOnDiamondCommand;
-			}
-			set
-			{
-				if (value != _leftMouseUpOnDiamondCommand)
-				{
-					_leftMouseUpOnDiamondCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand LeftMouseUpOnDiamondCommand { get; set; }
 
-		public DelegateCommand<Image> MouseMoveOnDiamondCommand
-		{
-			get
-			{
-				return _mouseMoveOnDiamondCommand;
-			}
-			set
-			{
-				if (value != _mouseMoveOnDiamondCommand)
-				{
-					_mouseMoveOnDiamondCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand<Image> MouseMoveOnDiamondCommand { get; set; }
+		#endregion
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -423,8 +333,12 @@ namespace BitTile
 		#region Left Mouse Wheel
 		private void LeftMouseDownOnWheel(Image image)
 		{
-			_isLeftMouseOnWheelPressed = true;
-			SelectColorOnWheel(image);
+			if (image is IInputElement element)
+			{
+				_isLeftMouseOnWheelPressed = true;
+				Mouse.Capture(element);
+				SelectColorOnWheel(element);
+			}
 		}
 
 		private bool LeftMouseDownOnWheelCanExecute(Image image)
@@ -444,35 +358,40 @@ namespace BitTile
 
 		private void MouseMoveOnWheel(Image image)
 		{
-			SelectColorOnWheel(image);
+			if (image is IInputElement element)
+			{
+				SelectColorOnWheel(element);
+			}
 		}
 
 		private void LeftMouseUpOnWheel()
 		{
 			_isLeftMouseOnWheelPressed = false;
+			Mouse.Capture(null);
 		}
 
-		private void SelectColorOnWheel(Image image)
+		private void SelectColorOnWheel(IInputElement element)
 		{
-			if (image is IInputElement element)
-			{
-				System.Windows.Point point = Mouse.GetPosition(element);
-				double cartX = point.X - _wheelImageSize / 2;
-				double cartY = -point.Y + _wheelImageSize / 2;
-				double radians = Math.Atan2(cartX, cartY);
-				double angle = radians.RadiansToAngle();
-				angle = (-angle + 450) % 360;
+			System.Windows.Point point = Mouse.GetPosition(element);
+			double cartX = point.X - _wheelImageSize / 2;
+			double cartY = -point.Y + _wheelImageSize / 2;
+			double radians = Math.Atan2(cartX, cartY);
+			double angle = radians.RadiansToAngle();
+			angle = (-angle + 450) % 360;
 
-				HueSliderValue = (int)angle;
-			}
+			HueSliderValue = (int)angle;
 		}
 		#endregion
 
 		#region Left Mouse Diamond
 		private void LeftMouseDownOnDiamond(Image image)
 		{
-			_isLeftMouseOnDiamondPressed = true;
-			SelectColorOnDiamond(image);
+			if (image is IInputElement element)
+			{
+				_isLeftMouseOnDiamondPressed = true;
+				Mouse.Capture(element);
+				SelectColorOnDiamond(element);
+			}
 		}
 
 		private bool LeftMouseDownOnDiamondCanExecute(Image image)
@@ -496,30 +415,31 @@ namespace BitTile
 			return canExecute;
 		}
 
-		private void MouseMoveOnDiamond(Image image)
+		public void MouseMoveOnDiamond(Image image)
 		{
-			SelectColorOnDiamond(image);
+			if(image is IInputElement element)
+			{
+				SelectColorOnDiamond(element);
+			}
 		}
 
-		private void LeftMouseUpOnDiamond()
+		public void LeftMouseUpOnDiamond()
 		{
 			_isLeftMouseOnDiamondPressed = false;
+			Mouse.Capture(null);
 		}
 
-		private void SelectColorOnDiamond(Image image)
+		private void SelectColorOnDiamond(IInputElement element)
 		{
-			if (image is IInputElement element)
-			{
-				System.Windows.Point clickPoint = Mouse.GetPosition(element);
-				double y = DIAMOND_SIZE * DIAMOND_DIVIDE_SCALE - clickPoint.Y * DIAMOND_DIVIDE_SCALE;
-				double distanceFromTopBottom = clickPoint.Y > DIAMOND_SIZE / 2 ? DIAMOND_SIZE - clickPoint.Y : clickPoint.Y;
-				double yRatio = distanceFromTopBottom / (DIAMOND_SIZE / 2);
-				double xLength = DIAMOND_SIZE * yRatio;
-				double modifiedX = clickPoint.X - ((DIAMOND_SIZE - xLength) / 2);
-				double sliderValue = modifiedX / xLength * 100;
-				SaturationSliderValue = (int)sliderValue;
-				LuminositySliderValue = (int)y;
-			}
+			System.Windows.Point clickPoint = Mouse.GetPosition(element);
+			double y = DIAMOND_SIZE * DIAMOND_DIVIDE_SCALE - clickPoint.Y * DIAMOND_DIVIDE_SCALE;
+			double distanceFromTopBottom = clickPoint.Y > DIAMOND_SIZE / 2 ? DIAMOND_SIZE - clickPoint.Y : clickPoint.Y;
+			double yRatio = distanceFromTopBottom / (DIAMOND_SIZE / 2);
+			double xLength = DIAMOND_SIZE * yRatio;
+			double modifiedX = clickPoint.X - ((DIAMOND_SIZE - xLength) / 2);
+			double sliderValue = modifiedX / xLength * 100;
+			SaturationSliderValue = (int)sliderValue;
+			LuminositySliderValue = (int)y;
 		}
 
 		private double CalculateArea(Point C1, Point C2, Point C3)

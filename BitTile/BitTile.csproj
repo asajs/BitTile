@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <StartupObject>BitTile.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

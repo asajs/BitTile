@@ -41,7 +41,7 @@ namespace BitTile.UserControls.Prompts
 			bool heightSuccessful = int.TryParse(PixelHeight, out int height);
 			bool sizeSuccessful = int.TryParse(SizeOfPixel, out int size);
 
-			if(widthSuccessful && heightSuccessful && sizeSuccessful)
+			if (widthSuccessful && heightSuccessful && sizeSuccessful)
 			{
 				width = Math.Max(1, Math.Min(256, width));
 				height = Math.Max(1, Math.Min(256, height));
@@ -60,19 +60,9 @@ namespace BitTile.UserControls.Prompts
 
 		private void ValidateInput(object sender, TextCompositionEventArgs e)
 		{
-			bool successfulParse = int.TryParse(e.Text, out int result);
-			e.Handled = successfulParse;
-			if(successfulParse)
+			if (sender is TextBox box)
 			{
-				if(sender is TextBox box)
-				{
-					int index = box.CaretIndex;
-					string finalString = box.Text.Insert(box.CaretIndex, result.ToString());
-					int.TryParse(finalString, out int finalresult);
-					int finalNumber = Math.Max(1, Math.Min(256, finalresult));
-					box.Text = finalNumber.ToString();
-					box.CaretIndex = index + 1;
-				}
+				HandleInput(box, e, 1, 128);
 			}
 		}
 
@@ -93,19 +83,24 @@ namespace BitTile.UserControls.Prompts
 
 		private void ValidateSizeInput(object sender, TextCompositionEventArgs e)
 		{
-			bool successfulParse = int.TryParse(e.Text, out int result);
-			e.Handled = successfulParse;
+			if (sender is TextBox box)
+			{
+				HandleInput(box, e, 1, 20);
+			}
+		}
+
+		private void HandleInput(TextBox box, TextCompositionEventArgs keyStroke, int min, int max)
+		{
+			bool successfulParse = int.TryParse(keyStroke.Text, out int result);
+			keyStroke.Handled = successfulParse;
 			if (successfulParse)
 			{
-				if (sender is TextBox box)
-				{
-					int index = box.CaretIndex;
-					string finalString = box.Text.Insert(box.CaretIndex, result.ToString());
-					int.TryParse(finalString, out int finalresult);
-					int finalNumber = Math.Max(1, Math.Min(20, finalresult));
-					box.Text = finalNumber.ToString();
-					box.CaretIndex = index + 1;
-				}
+				int index = box.CaretIndex;
+				string finalString = box.Text.Insert(box.CaretIndex, result.ToString());
+				int.TryParse(finalString, out int finalresult);
+				int finalNumber = Math.Max(min, Math.Min(max, finalresult));
+				box.Text = finalNumber.ToString();
+				box.CaretIndex = index + 1;
 			}
 		}
 	}

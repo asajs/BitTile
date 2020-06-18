@@ -11,6 +11,7 @@ using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
 using BitTile.Common;
+using System.Diagnostics;
 
 namespace BitTile
 {
@@ -32,10 +33,6 @@ namespace BitTile
 		private int _previous_x = -1;
 		private int _previous_y = -1;
 
-		private DelegateCommand<Image> _leftMouseDownCommand;
-		private DelegateCommand _leftMouseUpCommand;
-		private DelegateCommand<Image> _mouseMoveCommand;
-
 		private Rect _gridSize;
 		private Point _topLeft;
 		private Point _topRight;
@@ -55,44 +52,11 @@ namespace BitTile
 		}
 
 		#region Commands
-		public DelegateCommand<Image> LeftMouseDownCommand
-		{
-			get { return _leftMouseDownCommand; }
-			set
-			{
-				if (value != _leftMouseDownCommand)
-				{
-					_leftMouseDownCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand<Image> LeftMouseDownCommand { get; set; }
 
-		public DelegateCommand LeftMouseUpCommand
-		{
-			get { return _leftMouseUpCommand; }
-			set
-			{
-				if (value != _leftMouseUpCommand)
-				{
-					_leftMouseUpCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand LeftMouseUpCommand { get; set; }
 
-		public DelegateCommand<Image> MouseMoveCommand
-		{
-			get { return _mouseMoveCommand; }
-			set
-			{
-				if (value != _mouseMoveCommand)
-				{
-					_mouseMoveCommand = value;
-					NotifyPropertyChanged();
-				}
-			}
-		}
+		public DelegateCommand<Image> MouseMoveCommand { get; set; }
 		#endregion
 
 		#region Properties
@@ -257,9 +221,9 @@ namespace BitTile
 					_sizeOfPixel = value;
 					NotifyPropertyChanged();
 					TopLeft = new Point(0, 0);
-					TopRight = new Point(0, PixelsWide);
-					BottomRight = new Point(PixelsHigh, _sizeOfPixel);
-					BottomLeft = new Point(PixelsHigh, 0);
+					TopRight = new Point(0, _sizeOfPixel);
+					BottomRight = new Point(_sizeOfPixel, _sizeOfPixel);
+					BottomLeft = new Point(_sizeOfPixel, 0);
 					UpdateSecondaryProperties();
 				}
 			}
@@ -294,9 +258,9 @@ namespace BitTile
 		{
 			_undo.Clear();
 			
-			SizeOfPixel = pixelWidth;
 			PixelsHigh = height;
 			PixelsWide = width;
+			SizeOfPixel = pixelWidth;
 			Colors = new Color[PixelsHigh, PixelsWide];
 			for (int i = 0; i < PixelsHigh; i++)
 			{
@@ -344,17 +308,21 @@ namespace BitTile
 
 		private void LeftMouseDown(Image image)
 		{
-			_isMouseLeftPressed = true;
-			Color[,] newColors = new Color[PixelsHigh, PixelsWide];
-			for (int i = 0; i < PixelsHigh; i++)
+			if (image is IInputElement element)
 			{
-				for (int j = 0; j < PixelsWide; j++)
+				Mouse.Capture(element);
+				_isMouseLeftPressed = true;
+				Color[,] newColors = new Color[PixelsHigh, PixelsWide];
+				for (int i = 0; i < PixelsHigh; i++)
 				{
-					newColors[i, j] = Colors[i, j];
+					for (int j = 0; j < PixelsWide; j++)
+					{
+						newColors[i, j] = Colors[i, j];
+					}
 				}
+				_undo.Push(newColors);
+				ChangeBitMap(image);
 			}
-			_undo.Push(newColors);
-			ChangeBitMap(image);
 		}
 
 		private void LeftMouseUp()
@@ -362,6 +330,7 @@ namespace BitTile
 			_previous_x = -1;
 			_previous_y = -1;
 			_isMouseLeftPressed = false;
+			Mouse.Capture(null);
 		}
 
 		private void MouseMove(Image image)
@@ -374,10 +343,12 @@ namespace BitTile
 			if (image is IInputElement element)
 			{
 				Point point = Mouse.GetPosition(element);
-				int x = (int)(point.X / SizeOfPixel) * SizeOfPixel;
 				int y = (int)(point.Y / SizeOfPixel) * SizeOfPixel;
-				int colorX = x / SizeOfPixel;
+				int x = (int)(point.X / SizeOfPixel) * SizeOfPixel;
+				y.Clamp(0, PixelsWide * SizeOfPixel - SizeOfPixel);
+				x.Clamp(0, PixelsHigh * SizeOfPixel - SizeOfPixel);
 				int colorY = y / SizeOfPixel;
+				int colorX = x / SizeOfPixel;
 				colorY.Clamp(0, PixelsHigh - 1);
 				colorX.Clamp(0, PixelsWide - 1);
 				Colors[colorY, colorX] = _currentColor;
