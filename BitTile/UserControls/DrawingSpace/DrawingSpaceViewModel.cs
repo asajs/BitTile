@@ -24,7 +24,8 @@ namespace BitTile
 		private Color _currentColor;
 		private int _height;
 		private int _width;
-		private int _numberOfPixelsSize;
+		private int _pixelsHigh;
+		private int _pixelsWide;
 		private int _sizeOfPixel;
 		private bool _isMouseLeftPressed;
 
@@ -49,20 +50,7 @@ namespace BitTile
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
 			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
 
-			_undo = new Stack<Color[,]>();
-
-			SizeOfPixel = 10;
-			NumberOfPixelsSize = 64;
-			Colors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
-			for (int i = 0; i < NumberOfPixelsSize; i++)
-			{
-				for (int j = 0; j < NumberOfPixelsSize; j++)
-				{
-					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
-				}
-			}
-			SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, NumberOfPixelsSize, NumberOfPixelsSize);
-			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
+			NewSheet(64, 64, 10);
 		}
 
 		#region Commands
@@ -228,15 +216,30 @@ namespace BitTile
 			}
 		}
 
-		public int NumberOfPixelsSize
+		public int PixelsHigh
 		{
-			get { return _numberOfPixelsSize; }
+			get { return _pixelsHigh; }
 			set
 			{
-				if (value != _numberOfPixelsSize)
+				if (value != _pixelsHigh)
 				{
-					_numberOfPixelsSize = value;
-					_colors = new Color[_numberOfPixelsSize, _numberOfPixelsSize];
+					_pixelsHigh = value;
+					_colors = new Color[_pixelsHigh, PixelsWide];
+					NotifyPropertyChanged();
+					UpdateSecondaryProperties();
+				}
+			}
+		}
+
+		public int PixelsWide
+		{
+			get { return _pixelsWide; }
+			set
+			{
+				if (value != _pixelsWide)
+				{
+					_pixelsWide = value;
+					_colors = new Color[PixelsHigh, _pixelsWide];
 					NotifyPropertyChanged();
 					UpdateSecondaryProperties();
 				}
@@ -253,9 +256,9 @@ namespace BitTile
 					_sizeOfPixel = value;
 					NotifyPropertyChanged();
 					TopLeft = new Point(0, 0);
-					TopRight = new Point(0, _sizeOfPixel);
-					BottomRight = new Point(_sizeOfPixel, _sizeOfPixel);
-					BottomLeft = new Point(_sizeOfPixel, 0);
+					TopRight = new Point(0, PixelsWide);
+					BottomRight = new Point(PixelsHigh, _sizeOfPixel);
+					BottomLeft = new Point(PixelsHigh, 0);
 					UpdateSecondaryProperties();
 				}
 			}
@@ -281,30 +284,35 @@ namespace BitTile
 			if (_undo.Count > 0)
 			{
 				Colors = _undo.Pop();
-				SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, NumberOfPixelsSize, NumberOfPixelsSize);
-				BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
+				SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
+				BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, PixelsHigh, PixelsWide);
 			}
 		}
 
-		public void New()
+		public void NewSheet(int width, int height, int pixelWidth)
 		{
-			for (int i = 0; i < NumberOfPixelsSize; i++)
+			_undo = new Stack<Color[,]>();
+
+			SizeOfPixel = pixelWidth;
+			PixelsWide = width;
+			PixelsHigh = height;
+			Colors = new Color[PixelsHigh, PixelsWide];
+			for (int i = 0; i < PixelsHigh; i++)
 			{
-				for (int j = 0; j < NumberOfPixelsSize; j++)
+				for (int j = 0; j < PixelsWide; j++)
 				{
 					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
 				}
 			}
-			SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, NumberOfPixelsSize, NumberOfPixelsSize);
-			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
-			_undo.Clear();
+			SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
+			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, PixelsHigh, PixelsWide);
 		}
 
 		public void HandleSource(BitmapSource source)
 		{
-			Color[,] samples = BitmapManipulator.SampleBitmapSource(source, NumberOfPixelsSize, NumberOfPixelsSize);
-			SmallBitTile = BitmapManipulator.CreateBitTile(samples, 1, NumberOfPixelsSize, NumberOfPixelsSize);
-			BitTile = BitmapManipulator.CreateBitTile(samples, SizeOfPixel, NumberOfPixelsSize, NumberOfPixelsSize);
+			Color[,] samples = BitmapManipulator.SampleBitmapSource(source, PixelsHigh, PixelsWide);
+			SmallBitTile = BitmapManipulator.CreateBitTile(samples, 1, PixelsHigh, PixelsWide);
+			BitTile = BitmapManipulator.CreateBitTile(samples, SizeOfPixel, PixelsHigh, PixelsWide);
 			_undo.Clear();
 		}
 
@@ -325,8 +333,8 @@ namespace BitTile
 
 		private void UpdateSecondaryProperties()
 		{
-			Height = NumberOfPixelsSize * SizeOfPixel;
-			Width = NumberOfPixelsSize * SizeOfPixel;
+			Height = PixelsHigh * SizeOfPixel;
+			Width = PixelsWide * SizeOfPixel;
 			TileBrush = new DrawingBrush
 			{
 				Viewport = new Rect(0, 0, SizeOfPixel, SizeOfPixel)
@@ -336,10 +344,10 @@ namespace BitTile
 		private void LeftMouseDown(Image image)
 		{
 			_isMouseLeftPressed = true;
-			Color[,] newColors = new Color[NumberOfPixelsSize, NumberOfPixelsSize];
-			for (int i = 0; i < NumberOfPixelsSize; i++)
+			Color[,] newColors = new Color[PixelsHigh, PixelsWide];
+			for (int i = 0; i < PixelsHigh; i++)
 			{
-				for (int j = 0; j < NumberOfPixelsSize; j++)
+				for (int j = 0; j < PixelsWide; j++)
 				{
 					newColors[i, j] = Colors[i, j];
 				}
@@ -369,8 +377,8 @@ namespace BitTile
 				int y = (int)(point.Y / SizeOfPixel) * SizeOfPixel;
 				int colorX = x / SizeOfPixel;
 				int colorY = y / SizeOfPixel;
-				colorX.Clamp(0, NumberOfPixelsSize - 1);
-				colorY.Clamp(0, NumberOfPixelsSize - 1);
+				colorX.Clamp(0, PixelsWide - 1);
+				colorY.Clamp(0, PixelsHigh - 1);
 				Colors[colorX, colorY] = _currentColor;
 				if (colorX != _previous_x || colorY != _previous_y)
 				{

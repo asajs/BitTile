@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using BitTile.Common;
+using BitTile.UserControls.Prompts;
+using System;
 
 namespace BitTile
 {
@@ -22,6 +24,8 @@ namespace BitTile
 		private readonly OptionsViewModel _optionsViewModel = new OptionsViewModel();
 
 		private readonly FileHandler _fileHandler = new FileHandler();
+
+		private NewPrompt _newPrompt = new NewPrompt();
 
 		private bool _saveUpToDate = true;
 		private bool _alreadyRanExitCommand = false;
@@ -59,6 +63,9 @@ namespace BitTile
 			_drawingSpaceViewModel.PropertyChanged += DrawingSpaceViewModelPropertyChanged;
 
 			_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
+
+			_newPrompt.CreateNewEvent += CreateNew;
+			_newPrompt.CancelCreateNewEvent += CloseCreateNewPrompt;
 		}
 
 		private void CtrlZ()
@@ -73,7 +80,23 @@ namespace BitTile
 
 		private void CtrlN()
 		{
-			_drawingSpaceViewModel.New();
+			_newPrompt.Show();
+		}
+
+		private void CreateNew(object sender, CreateNewEventArgs e)
+		{
+			CloseCreateNewPrompt(sender, null);
+			_drawingSpaceViewModel.NewSheet(e.PixelWidth, e.PixelHeight, e.SizeOfPixel);
+		}
+
+		private void CloseCreateNewPrompt(object sender, EventArgs e)
+		{
+			_newPrompt.CreateNewEvent -= CreateNew;
+			_newPrompt.CancelCreateNewEvent -= CloseCreateNewPrompt;
+			_newPrompt.Close();
+			_newPrompt = new NewPrompt();
+			_newPrompt.CreateNewEvent += CreateNew;
+			_newPrompt.CancelCreateNewEvent += CloseCreateNewPrompt;
 		}
 
 		private void CtrlO()
