@@ -25,46 +25,6 @@ namespace BitTile.Common
 			return image;
 		}
 
-		//public static unsafe BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, int x, int y, int pixelSize)
-		//{
-		//	Bitmap b = GetBitmap(source);
-
-		//	BitmapData bData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.ReadWrite, b.PixelFormat);
-
-		//	byte bitsPerPixel = Convert.ToByte(Image.GetPixelFormatSize(bData.PixelFormat));
-		//	int bit = bitsPerPixel / 8;
-
-		//	/*This time we convert the IntPtr to a ptr*/
-		//	byte* scan0 = (byte*)bData.Scan0.ToPointer();
-
-		//	byte* dataCheck = scan0 + y * bData.Stride + x * bit;
-		//	if (dataCheck[0] != newColor.B
-		//		|| dataCheck[1] != newColor.G
-		//		|| dataCheck[2] != newColor.R
-		//		|| dataCheck[3] != newColor.A)
-		//	{
-		//		for (int i = y; i < y + pixelSize; ++i)
-		//		{
-		//			byte* startPoint = scan0 + i * bData.Stride;
-
-		//			for (int j = x; j < x + pixelSize; ++j)
-		//			{
-		//				byte* data = startPoint + j * bit;
-
-		//				//data is a pointer to the first byte of the 3-byte color data
-		//				data[0] = newColor.B;
-		//				data[1] = newColor.G;
-		//				data[2] = newColor.R;
-		//				data[3] = newColor.A;
-		//			}
-		//		}
-		//	}
-
-		//	b.UnlockBits(bData);
-
-		//	return CreateBitmapSourceFromGdiBitmap(b);
-		//}
-
 		public static BitmapSource DeepCopyImage(System.Windows.Controls.Image image)
 		{
 			return (BitmapSource)image.Source.Clone();
