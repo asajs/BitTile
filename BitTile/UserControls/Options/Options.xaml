@@ -15,7 +15,7 @@
 			<RowDefinition Height="20"/>
 		</Grid.RowDefinitions>
 		<Image Source="{Binding DrawnImage}" Width="{Binding WidthOfImage}" Height="{Binding HeightOfImage}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-		<Rectangle Width="{Binding HeightOf3Images}" Height="{Binding WidthOf3Images}" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center">
+		<Rectangle Width="{Binding WidthOf3Images}" Height="{Binding HeightOf3Images}" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center">
 			<Rectangle.Fill>
 				<ImageBrush ImageSource="{Binding DrawnImage}" Viewport="{Binding SizeOfImage}" ViewportUnits="Absolute" TileMode="Tile"/>
 			</Rectangle.Fill>

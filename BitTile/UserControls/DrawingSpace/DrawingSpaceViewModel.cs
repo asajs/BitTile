@@ -49,6 +49,7 @@ namespace BitTile
 			LeftMouseDownCommand = new DelegateCommand<Image>((image) => LeftMouseDown(image));
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
 			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
+			_undo = new Stack<Color[,]>();
 
 			NewSheet(64, 64, 10);
 		}
@@ -289,13 +290,13 @@ namespace BitTile
 			}
 		}
 
-		public void NewSheet(int width, int height, int pixelWidth)
+		public void NewSheet(int height, int width, int pixelWidth)
 		{
-			_undo = new Stack<Color[,]>();
-
+			_undo.Clear();
+			
 			SizeOfPixel = pixelWidth;
-			PixelsWide = width;
 			PixelsHigh = height;
+			PixelsWide = width;
 			Colors = new Color[PixelsHigh, PixelsWide];
 			for (int i = 0; i < PixelsHigh; i++)
 			{
@@ -377,15 +378,15 @@ namespace BitTile
 				int y = (int)(point.Y / SizeOfPixel) * SizeOfPixel;
 				int colorX = x / SizeOfPixel;
 				int colorY = y / SizeOfPixel;
-				colorX.Clamp(0, PixelsWide - 1);
 				colorY.Clamp(0, PixelsHigh - 1);
-				Colors[colorX, colorY] = _currentColor;
+				colorX.Clamp(0, PixelsWide - 1);
+				Colors[colorY, colorX] = _currentColor;
 				if (colorX != _previous_x || colorY != _previous_y)
 				{
 					_previous_y = colorY;
 					_previous_x = colorX;
-					SmallBitTile = BitmapManipulator.EditTileOfBitmap(SmallBitTile, _currentColor, colorX, colorY, 1);
-					BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, x, y, SizeOfPixel);
+					SmallBitTile = BitmapManipulator.EditTileOfBitmap(SmallBitTile, _currentColor, colorY, colorX, 1);
+					BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, y, x, SizeOfPixel);
 				}
 			}
 		}

@@ -86,7 +86,9 @@ namespace BitTile
 		private void CreateNew(object sender, CreateNewEventArgs e)
 		{
 			CloseCreateNewPrompt(sender, null);
-			_drawingSpaceViewModel.NewSheet(e.PixelWidth, e.PixelHeight, e.SizeOfPixel);
+			_drawingSpaceViewModel.NewSheet(e.PixelHeight, e.PixelWidth, e.SizeOfPixel);
+			_optionsViewModel.HeightOfImage = e.PixelHeight;
+			_optionsViewModel.WidthOfImage = e.PixelWidth;
 		}
 
 		private void CloseCreateNewPrompt(object sender, EventArgs e)

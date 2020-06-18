@@ -66,7 +66,12 @@ namespace BitTile.UserControls.Prompts
 			{
 				if(sender is TextBox box)
 				{
-					box.Text = Math.Max(1, Math.Min(256, result)).ToString();
+					int index = box.CaretIndex;
+					string finalString = box.Text.Insert(box.CaretIndex, result.ToString());
+					int.TryParse(finalString, out int finalresult);
+					int finalNumber = Math.Max(1, Math.Min(256, finalresult));
+					box.Text = finalNumber.ToString();
+					box.CaretIndex = index + 1;
 				}
 			}
 		}
@@ -94,7 +99,12 @@ namespace BitTile.UserControls.Prompts
 			{
 				if (sender is TextBox box)
 				{
-					box.Text = Math.Max(1, Math.Min(20, result)).ToString();
+					int index = box.CaretIndex;
+					string finalString = box.Text.Insert(box.CaretIndex, result.ToString());
+					int.TryParse(finalString, out int finalresult);
+					int finalNumber = Math.Max(1, Math.Min(20, finalresult));
+					box.Text = finalNumber.ToString();
+					box.CaretIndex = index + 1;
 				}
 			}
 		}

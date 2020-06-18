@@ -11,14 +11,14 @@ namespace BitTile.Common
 {
 	static class BitmapManipulator
 	{
-		public static BitmapSource CreateBitTile(Color[,] colors, int pixelSize, int pixelsWide, int pixelsHeight)
+		public static BitmapSource CreateBitTile(Color[,] colors, int pixelSize, int pixelsHeight, int pixelsWide)
 		{
 			BitmapSource image;
 			using (Bitmap bitmap = new Bitmap(pixelsWide * pixelSize, pixelsHeight * pixelSize))
 			{
 				using (Graphics graphics = Graphics.FromImage(bitmap))
 				{
-					DrawBitMap(graphics, colors, pixelSize, pixelsWide, pixelsHeight);
+					DrawBitMap(graphics, colors, pixelSize, pixelsHeight, pixelsWide);
 				}
 				image = CreateBitmapSourceFromGdiBitmap(bitmap);
 			}
@@ -70,7 +70,7 @@ namespace BitTile.Common
 			return (BitmapSource)image.Source.Clone();
 		}
 
-		public static BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, int x, int y, int pixelSize)
+		public static BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, int y, int x, int pixelSize)
 		{
 			Bitmap b = GetBitmap(source);
 
@@ -108,7 +108,7 @@ namespace BitTile.Common
 			return CreateBitmapSourceFromGdiBitmap(b);
 		}
 
-		public static Color[,] SampleBitmapSource(BitmapSource source, int destWidth, int destHeight)
+		public static Color[,] SampleBitmapSource(BitmapSource source, int destHeight, int destWidth)
 		{
 			Bitmap bitmap = GetBitmap(source);
 
@@ -117,13 +117,13 @@ namespace BitTile.Common
 
 			int size = bData.Stride * bData.Height;
 
-			int widthFactor = bData.Width / destWidth;
 			int heightFactor = bData.Height / destHeight;
+			int widthFactor = bData.Width / destWidth;
 
 			byte[] data = new byte[size];
 			int bits = bitsPerPixel / 8;
 
-			Color[,] colors = new Color[destWidth, destHeight];
+			Color[,] colors = new Color[destHeight, destWidth];
 
 			Marshal.Copy(bData.Scan0, data, 0, size);
 
@@ -131,7 +131,7 @@ namespace BitTile.Common
 			{
 				for(int x = 0; x < destWidth; x++)
 				{
-					colors[x, y] = SampleRegion(data, widthFactor, heightFactor, x, y, bits, bData.Stride);
+					colors[y, x] = SampleRegion(data, heightFactor, widthFactor, y, x, bData.Stride, bits);
 				}
 			}
 
@@ -140,7 +140,7 @@ namespace BitTile.Common
 			return colors;
 		}
 
-		private static Color SampleRegion(byte[] data, int widthFactor, int heightFactor, int startX, int startY, int incrementX, int incrementY)
+		private static Color SampleRegion(byte[] data, int heightFactor, int widthFactor, int startY, int startX, int incrementY, int incrementX)
 		{
 			int redSample = 0;
 			int greenSample = 0;
@@ -196,14 +196,14 @@ namespace BitTile.Common
 			return bmp;
 		}
 
-		private static void DrawBitMap(Graphics gr, Color[,] colors, int pixelSize, int pixelsWide, int pixelsHeight)
+		private static void DrawBitMap(Graphics gr, Color[,] colors, int pixelSize, int pixelsHeight, int pixelsWide)
 		{
 			for (int i = 0; i < pixelsHeight; i++)
 			{
 				for (int j = 0; j < pixelsWide; j++)
 				{
 					SolidBrush brush = new SolidBrush(colors[i, j]);
-					gr.FillRectangle(brush, i * pixelSize, j * pixelSize, pixelSize, pixelSize);
+					gr.FillRectangle(brush, j * pixelSize, i * pixelSize, pixelSize, pixelSize);
 				}
 			}
 		}
