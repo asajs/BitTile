@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BitTile.Common;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Windows;
 using Xunit.Sdk;
 
@@ -75,7 +76,7 @@ namespace BitTile.Tests
 		public void GrabPointsTest9()
 		{
 			DrawingSpaceViewModel model = new DrawingSpaceViewModel();
-			Point[] points = model.GrabPoints(31, 10, -21, -50);
+			Point[] points = GetDataFromImage.GetNormalizedPoints(31, 10, -21, -50);
 			Assert.IsTrue(points.Length > 0); 
 		}
 
@@ -84,6 +85,14 @@ namespace BitTile.Tests
 		{
 			DrawingSpaceViewModel model = new DrawingSpaceViewModel();
 			Point[] points = model.GrabPoints(1, 1, 1, 1);
+			Assert.IsTrue(points.Length > 0);
+		}
+
+		[TestMethod()]
+		public void GrabPointsTest11()
+		{
+			DrawingSpaceViewModel model = new DrawingSpaceViewModel();
+			Point[] points = model.GrabPoints(9, 48, 44, 1);
 			Assert.IsTrue(points.Length > 0);
 		}
 	}

@@ -73,6 +73,27 @@ namespace BitTile.Common
 			return CreateBitmapSourceFromGdiBitmap(b);
 		}
 
+		public static Color SampleRegion(BitmapSource source, int y, int x)
+		{
+			Bitmap bitmap = GetBitmap(source);
+
+			BitmapData bData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+			byte bitsPerPixel = Convert.ToByte(Image.GetPixelFormatSize(bData.PixelFormat));
+
+			int size = bData.Stride * bData.Height;
+
+			byte[] data = new byte[size];
+			int bits = bitsPerPixel / 8;
+
+			Marshal.Copy(bData.Scan0, data, 0, size);
+
+			Color color = SampleRegion(data, 1, 1, y, x, bData.Stride, bits);
+
+			bitmap.UnlockBits(bData);
+
+			return color;
+		}
+
 		public static Color[,] SampleBitmapSource(BitmapSource source, int destHeight, int destWidth)
 		{
 			Bitmap bitmap = GetBitmap(source);

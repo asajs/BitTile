@@ -1,15 +1,13 @@
-﻿using BitTile.Common;
-using ExtensionMethods;
-using Microsoft.VisualStudio.PlatformUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using BitTile.Common;
+using Microsoft.VisualStudio.PlatformUI;
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
@@ -30,9 +28,10 @@ namespace BitTile
 		private int _pixelsWide;
 		private int _sizeOfPixel;
 		private bool _isMouseLeftPressed;
+		private IAction _clickAction;
 
-		private int _previous_x = -1;
-		private int _previous_y = -1;
+		private int _previousX = -1;
+		private int _previousY = -1;
 
 		private Rect _gridSize;
 		private Point _topLeft;
@@ -47,7 +46,10 @@ namespace BitTile
 			LeftMouseDownCommand = new DelegateCommand<Image>((image) => LeftMouseDown(image));
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
 			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
+			MouseEnterCommand = new DelegateCommand<Image>((image) => MouseEnter(image));
+			MouseLeaveCommand = new DelegateCommand<Image>((image) => MouseLeave(image));
 			_undo = new Stack<Color[,]>();
+			_clickAction = new Pencil();
 
 			NewSheet(64, 64, 10);
 		}
@@ -58,6 +60,10 @@ namespace BitTile
 		public DelegateCommand LeftMouseUpCommand { get; set; }
 
 		public DelegateCommand<Image> MouseMoveCommand { get; set; }
+
+		public DelegateCommand<Image> MouseEnterCommand { get; set; }
+
+		public DelegateCommand<Image> MouseLeaveCommand { get; set; }
 		#endregion
 
 		#region Properties
@@ -287,6 +293,11 @@ namespace BitTile
 			_currentColor = color;
 		}
 
+		public void SetAction(IAction action)
+		{
+			_clickAction = action;
+		}
+
 		#endregion
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -307,11 +318,30 @@ namespace BitTile
 			};
 		}
 
+		private void MouseEnter(Image image)
+		{
+			_isMouseLeftPressed = Mouse.LeftButton == MouseButtonState.Pressed;
+			_previousX = -1;
+			_previousY = -1;
+
+			if(_isMouseLeftPressed)
+			{
+				ChangeBitMap(image);
+			}
+		}
+
+		private void MouseLeave(Image image)
+		{
+			if(_isMouseLeftPressed)
+			{
+				ChangeBitMap(image);
+			}
+		}
+
 		private void LeftMouseDown(Image image)
 		{
-			if (image is IInputElement element)
+			if (image is IInputElement)
 			{
-				Mouse.Capture(element);
 				_isMouseLeftPressed = true;
 				Color[,] newColors = new Color[PixelsHigh, PixelsWide];
 				for (int i = 0; i < PixelsHigh; i++)
@@ -328,10 +358,9 @@ namespace BitTile
 
 		private void LeftMouseUp()
 		{
-			_previous_x = -1;
-			_previous_y = -1;
+			_previousX = -1;
+			_previousY = -1;
 			_isMouseLeftPressed = false;
-			Mouse.Capture(null);
 		}
 
 		private void MouseMove(Image image)
@@ -343,119 +372,21 @@ namespace BitTile
 		{
 			if (image is IInputElement element)
 			{
-				Point point = Mouse.GetPosition(element);
-				int y = (int)(point.Y / SizeOfPixel) * SizeOfPixel;
-				int x = (int)(point.X / SizeOfPixel) * SizeOfPixel;
-				y.Clamp(0, PixelsWide * SizeOfPixel - SizeOfPixel);
-				x.Clamp(0, PixelsHigh * SizeOfPixel - SizeOfPixel);
-				int colorY = y / SizeOfPixel;
-				int colorX = x / SizeOfPixel;
-				colorY.Clamp(0, PixelsHigh - 1);
-				colorX.Clamp(0, PixelsWide - 1);
-				Colors[colorY, colorX] = _currentColor;
-				if (colorX != _previous_x || colorY != _previous_y)
-				{
-					if(_previous_x == -1)
-					{
-						_previous_x = colorX;
-						_previous_y = colorY;
-					}
-					Point[] points = GrabPoints(_previous_x, _previous_y, colorX, colorY);
-					_previous_y = colorY;
-					_previous_x = colorX;
-					SmallBitTile = BitmapManipulator.EditTileOfBitmap(SmallBitTile, _currentColor, points, 1);
-					BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, points, SizeOfPixel);
-				}
+				DrawingSpaceData sendData = new DrawingSpaceData(element, SizeOfPixel, PixelsHigh, PixelsWide, _previousX, _previousY,
+															_isMouseLeftPressed, Colors, _currentColor, SmallBitTile, BitTile);
+
+				DrawingSpaceData receiveData = _clickAction.Action(sendData);
+
+				SizeOfPixel = receiveData.SizeOfPixel;
+				PixelsHigh = receiveData.PixelsHigh;
+				PixelsWide = receiveData.PixelsWide;
+				_previousX = receiveData.PreviousX;
+				_previousY = receiveData.PreviousY;
+				Colors = receiveData.Colors;
+				_currentColor = receiveData.CurrentColor;
+				SmallBitTile = receiveData.SmallBitmap;
+				BitTile = receiveData.LargeBitmap;
 			}
-		}
-
-		public Point[] GrabPoints(double x1, double y1, double x2, double y2)
-		{
-			if(Math.Abs(y2 - y1) < Math.Abs(x2 - x1))
-			{
-				if(x1 > x2)
-				{
-					return GrabPointsLow(x2, y2, x1, y1);
-				}
-				else
-				{
-					return GrabPointsLow(x1, y1, x2, y2);
-				}
-			}
-			else
-			{
-				if (y1 > y2)
-				{
-					return GrabPointsHigh(x2, y2, x1, y1);
-				}
-				else
-				{
-					return GrabPointsHigh(x1, y1, x2, y2);
-				}
-			}
-		}
-
-		private Point[] GrabPointsLow(double x1, double y1, double x2, double y2)
-		{
-			List<Point> points = new List<Point>();
-			double dx = x2 - x1;
-			double dy = y2 - y1;
-
-			double yIncrement = 1;
-
-			if(dy < 0)
-			{
-				yIncrement = -1;
-				dy = -dy;
-			}
-
-			double D = 2 * dy - dx;
-			double y = y1;
-
-			for(int x = (int)x1; x < x2; x++)
-			{
-				points.Add(new Point(x, y));
-				if(D > 0)
-				{
-					y += yIncrement;
-					D -= 2 * dx;
-				}
-				D += 2 * dy;
-			}
-			points.Add(new Point(x2, y2));
-			return points.ToArray();
-
-		}
-
-		private Point[] GrabPointsHigh(double x1, double y1, double x2, double y2)
-		{
-			List<Point> points = new List<Point>();
-			double dx = x2 - x1;
-			double dy = y2 - y1;
-
-			double xIncrement = 1;
-
-			if (dy < 0)
-			{
-				xIncrement = -1;
-				dx = -dx;
-			}
-
-			double D = 2 * dx - dy;
-			double x = x1;
-
-			for (int y = (int)y1; y < y2; y++)
-			{
-				points.Add(new Point(x, y));
-				if (D > 0)
-				{
-					x += xIncrement;
-					D -= 2 * dy;
-				}
-				D += 2 * dx;
-			}
-			points.Add(new Point(x2, y2));
-			return points.ToArray();
 		}
 		#endregion
 	}
