@@ -1,7 +1,10 @@
-﻿using ExtensionMethods;
+﻿using BitTile.Common;
+using ExtensionMethods;
 using Microsoft.VisualStudio.PlatformUI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -10,8 +13,6 @@ using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
-using BitTile.Common;
-using System.Diagnostics;
 
 namespace BitTile
 {
@@ -257,7 +258,7 @@ namespace BitTile
 		public void NewSheet(int height, int width, int pixelWidth)
 		{
 			_undo.Clear();
-			
+
 			PixelsHigh = height;
 			PixelsWide = width;
 			SizeOfPixel = pixelWidth;
@@ -354,12 +355,107 @@ namespace BitTile
 				Colors[colorY, colorX] = _currentColor;
 				if (colorX != _previous_x || colorY != _previous_y)
 				{
+					if(_previous_x == -1)
+					{
+						_previous_x = colorX;
+						_previous_y = colorY;
+					}
+					Point[] points = GrabPoints(_previous_x, _previous_y, colorX, colorY);
 					_previous_y = colorY;
 					_previous_x = colorX;
-					SmallBitTile = BitmapManipulator.EditTileOfBitmap(SmallBitTile, _currentColor, colorY, colorX, 1);
-					BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, y, x, SizeOfPixel);
+					SmallBitTile = BitmapManipulator.EditTileOfBitmap(SmallBitTile, _currentColor, points, 1);
+					BitTile = BitmapManipulator.EditTileOfBitmap(BitTile, _currentColor, points, SizeOfPixel);
 				}
 			}
+		}
+
+		public Point[] GrabPoints(double x1, double y1, double x2, double y2)
+		{
+			if(Math.Abs(y2 - y1) < Math.Abs(x2 - x1))
+			{
+				if(x1 > x2)
+				{
+					return GrabPointsLow(x2, y2, x1, y1);
+				}
+				else
+				{
+					return GrabPointsLow(x1, y1, x2, y2);
+				}
+			}
+			else
+			{
+				if (y1 > y2)
+				{
+					return GrabPointsHigh(x2, y2, x1, y1);
+				}
+				else
+				{
+					return GrabPointsHigh(x1, y1, x2, y2);
+				}
+			}
+		}
+
+		private Point[] GrabPointsLow(double x1, double y1, double x2, double y2)
+		{
+			List<Point> points = new List<Point>();
+			double dx = x2 - x1;
+			double dy = y2 - y1;
+
+			double yIncrement = 1;
+
+			if(dy < 0)
+			{
+				yIncrement = -1;
+				dy = -dy;
+			}
+
+			double D = 2 * dy - dx;
+			double y = y1;
+
+			for(int x = (int)x1; x < x2; x++)
+			{
+				points.Add(new Point(x, y));
+				if(D > 0)
+				{
+					y += yIncrement;
+					D -= 2 * dx;
+				}
+				D += 2 * dy;
+			}
+			points.Add(new Point(x2, y2));
+			return points.ToArray();
+
+		}
+
+		private Point[] GrabPointsHigh(double x1, double y1, double x2, double y2)
+		{
+			List<Point> points = new List<Point>();
+			double dx = x2 - x1;
+			double dy = y2 - y1;
+
+			double xIncrement = 1;
+
+			if (dy < 0)
+			{
+				xIncrement = -1;
+				dx = -dx;
+			}
+
+			double D = 2 * dx - dy;
+			double x = x1;
+
+			for (int y = (int)y1; y < y2; y++)
+			{
+				points.Add(new Point(x, y));
+				if (D > 0)
+				{
+					x += xIncrement;
+					D -= 2 * dy;
+				}
+				D += 2 * dx;
+			}
+			points.Add(new Point(x2, y2));
+			return points.ToArray();
 		}
 		#endregion
 	}

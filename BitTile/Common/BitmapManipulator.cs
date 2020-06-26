@@ -30,7 +30,7 @@ namespace BitTile.Common
 			return (BitmapSource)image.Source.Clone();
 		}
 
-		public static BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, int y, int x, int pixelSize)
+		public static BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, System.Windows.Point[] points, int pixelSize)
 		{
 			Bitmap b = GetBitmap(source);
 
@@ -49,14 +49,19 @@ namespace BitTile.Common
 			/*This overload copies data of /size/ into /data/ from location specified (/Scan0/)*/
 			Marshal.Copy(bData.Scan0, data, 0, size);
 
-			for (int i = y * bData.Stride; i < (y + pixelSize) * bData.Stride; i += bData.Stride)
+			foreach (System.Windows.Point point in points)
 			{
-				for (int j = x * bits; j < (x + pixelSize) * bits; j += bits)
+				int y = (int)point.Y * pixelSize;
+				int x = (int)point.X * pixelSize;
+				for (int i = y * bData.Stride; i < (y + pixelSize) * bData.Stride; i += bData.Stride)
 				{
-					data[i + j] = newColor.B;
-					data[i + j + 1] = newColor.G;
-					data[i + j + 2] = newColor.R;
-					data[i + j + 3] = newColor.A;
+					for (int j = x * bits; j < (x + pixelSize) * bits; j += bits)
+					{
+						data[i + j] = newColor.B;
+						data[i + j + 1] = newColor.G;
+						data[i + j + 2] = newColor.R;
+						data[i + j + 3] = newColor.A;
+					}
 				}
 			}
 
