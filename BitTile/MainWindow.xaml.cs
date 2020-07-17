@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using BitTile.Common;
 using BitTile.UserControls.Prompts;
 using System;
+using System.Drawing;
 
 namespace BitTile
 {
@@ -61,6 +62,7 @@ namespace BitTile
 
 			_colorPickerViewModel.PropertyChanged += ColorPickerPropertyChanged;
 			_drawingSpaceViewModel.PropertyChanged += DrawingSpaceViewModelPropertyChanged;
+			_optionsViewModel.ActionChanged += OptionsActionChanged;
 
 			_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
 
@@ -80,7 +82,8 @@ namespace BitTile
 
 		private void CtrlN()
 		{
-			_newPrompt.Show();
+			_newPrompt.ShowDialog();
+			CloseCreateNewPrompt(null, null);
 		}
 
 		private void CreateNew(object sender, CreateNewEventArgs e)
@@ -93,9 +96,12 @@ namespace BitTile
 
 		private void CloseCreateNewPrompt(object sender, EventArgs e)
 		{
-			_newPrompt.CreateNewEvent -= CreateNew;
-			_newPrompt.CancelCreateNewEvent -= CloseCreateNewPrompt;
-			_newPrompt.Close();
+			if (_newPrompt != null)
+			{
+				_newPrompt.CreateNewEvent -= CreateNew;
+				_newPrompt.CancelCreateNewEvent -= CloseCreateNewPrompt;
+				_newPrompt.Close();
+			}
 			_newPrompt = new NewPrompt();
 			_newPrompt.CreateNewEvent += CreateNew;
 			_newPrompt.CancelCreateNewEvent += CloseCreateNewPrompt;
@@ -133,10 +139,16 @@ namespace BitTile
 
 		private void DrawingSpaceViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == nameof(_drawingSpaceViewModel.BitTile))
+			switch(e.PropertyName)
 			{
-				_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
-				_saveUpToDate = false;
+				case nameof(_drawingSpaceViewModel.BitTile):
+					_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
+					_saveUpToDate = false;
+					break;
+				case nameof(_drawingSpaceViewModel.CurrentColor):
+					_colorPickerViewModel.SetColor(_drawingSpaceViewModel.CurrentColor);
+					_drawingSpaceViewModel.SetAction(new PencilAction());
+					break;
 			}
 		}
 
@@ -146,6 +158,23 @@ namespace BitTile
 			{
 				_drawingSpaceViewModel.SetColorOfPen(_colorPickerViewModel.LeftMouseSelectedColor.ConvertMediaColorToDrawingColor());
 			}
+		}
+
+		private void OptionsActionChanged(object sender, ActionChangedEventArgs e)
+		{
+			switch (e.Action)
+			{
+				case "pencil":
+					_drawingSpaceViewModel.SetAction(new PencilAction());
+					break;
+				case "colorpicker":
+					_drawingSpaceViewModel.SetAction(new ColorPickerAction());
+					break;
+				default:
+					_drawingSpaceViewModel.SetAction(new PencilAction());
+					break;
+			}
+
 		}
 
 		private void Window_Closing(object sender, CancelEventArgs e)

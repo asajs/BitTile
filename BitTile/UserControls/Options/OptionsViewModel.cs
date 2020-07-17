@@ -1,4 +1,10 @@
-﻿using System.ComponentModel;
+﻿using BitTile.Common;
+using Microsoft.VisualStudio.PlatformUI;
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -8,6 +14,8 @@ namespace BitTile
 	public class OptionsViewModel : INotifyPropertyChanged
 	{
 		private BitmapSource _drawnImage;
+		private BitmapSource _pencilImage;
+		private BitmapSource _colorPickerImage;
 		private double _widthOfImage;
 		private double _heightOfImage;
 		private double _widthOf3Images;
@@ -16,9 +24,23 @@ namespace BitTile
 
 		public OptionsViewModel()
 		{
+			LeftMouseDownOnPencilCommand = new DelegateCommand(() => NotifyActionChanged("pencil"));
+			LeftMouseDownOnColorPickerCommand = new DelegateCommand(() => NotifyActionChanged("colorpicker"));
+
 			WidthOfImage = 64;
 			HeightOfImage = 64;
+
+			Assembly pencilAssembly = Assembly.GetExecutingAssembly();
+			Stream pencilStream = pencilAssembly.GetManifestResourceStream("BitTile.Resources.pencil.png");
+			PencilImage = BitmapManipulator.CreateBitmapSourceFromGdiBitmap(new Bitmap(pencilStream));
+
+			Assembly colorPickerAssembly = Assembly.GetExecutingAssembly();
+			Stream colorPickerStream = colorPickerAssembly.GetManifestResourceStream("BitTile.Resources.colorpicker.png");
+			ColorPickerImage = BitmapManipulator.CreateBitmapSourceFromGdiBitmap(new Bitmap(colorPickerStream));
 		}
+
+		public DelegateCommand LeftMouseDownOnPencilCommand { get; set; }
+		public DelegateCommand LeftMouseDownOnColorPickerCommand { get; set; }
 
 		public BitmapSource DrawnImage
 		{
@@ -30,6 +52,34 @@ namespace BitTile
 					_drawnImage = value;
 					NotifyPropertyChanged();
 				}
+			}
+		}
+
+		public BitmapSource PencilImage
+		{
+			get { return _pencilImage; }
+			set
+			{
+				if (_pencilImage != value)
+				{
+					_pencilImage = value;
+					NotifyPropertyChanged();
+				}
+
+			}
+		}
+
+		public BitmapSource ColorPickerImage
+		{
+			get { return _colorPickerImage; }
+			set
+			{
+				if (_colorPickerImage != value)
+				{
+					_colorPickerImage = value;
+					NotifyPropertyChanged();
+				}
+
 			}
 		}
 
@@ -104,6 +154,13 @@ namespace BitTile
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
+
+		public event EventHandler<ActionChangedEventArgs> ActionChanged;
+
+		private void NotifyActionChanged([CallerMemberName] string actionName = "pencil")
+		{
+			ActionChanged?.Invoke(this, new ActionChangedEventArgs(actionName));
+		}
 
 		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 		{

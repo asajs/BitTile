@@ -30,6 +30,7 @@ namespace BitTile
 		private SelectionCircle _colorDiamondSelectionCircle;
 
 		private Color _leftMouseSelectedColor;
+		private Color _leftMouseSelectedColorNoAlpha;
 		private Color _hueSelectedColor;
 		private Color _satZeroColor;
 		private Color _lueBlackColor;
@@ -56,13 +57,14 @@ namespace BitTile
 			ColorWheelSelectionCircle = new SelectionCircle();
 			ColorDiamondSelectionCircle = new SelectionCircle();
 
+			ColorWheelImage = ColorWheel.Create();
+			ColorDiamondImage = ColorDiamond.Create(HueSelectedColor, DIAMOND_SIZE);
+
 			HueSliderValue = 180;
 			SaturationSliderValue = 100;
 			LuminositySliderValue = 0;
 			AlphaSliderValue = 100;
 			SetStaticColors();
-			ColorWheelImage = ColorWheel.Create();
-			ColorDiamondImage = ColorDiamond.Create(HueSelectedColor, DIAMOND_SIZE);
 		}
 
 		public int DiamondLengthOfSide
@@ -71,6 +73,22 @@ namespace BitTile
 		}
 
 		#region Colors
+		public Color LeftMouseSelectedColorNoAlpha
+		{
+			get
+			{
+				return _leftMouseSelectedColorNoAlpha;
+			}
+			set
+			{
+				if (value != _leftMouseSelectedColorNoAlpha)
+				{
+					_leftMouseSelectedColorNoAlpha = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
 		public Color LeftMouseSelectedColor
 		{
 			get
@@ -82,6 +100,7 @@ namespace BitTile
 				if (value != _leftMouseSelectedColor)
 				{
 					_leftMouseSelectedColor = value;
+					LeftMouseSelectedColorNoAlpha = ColorHelper.HslaToRgba(HueSliderValue, SaturationSliderValue, LuminositySliderValue);
 					NotifyPropertyChanged();
 				}
 			}
@@ -328,6 +347,16 @@ namespace BitTile
 			SatZeroColor = ColorHelper.HslaToRgba(hslaValues[0], 0, hslaValues[2], hslaValues[3]);
 			LueBlackColor = ColorHelper.HslaToRgba(hslaValues[0], hslaValues[1], 0, hslaValues[3]);
 			LueWhiteColor = ColorHelper.HslaToRgba(hslaValues[0], hslaValues[1], 100, hslaValues[3]);
+		}
+
+		public void SetColor(System.Drawing.Color color)
+		{
+			double[] hsla = ColorHelper.RgbaToHsla(color.ConvertDrawingColorToMediaColor());
+			hsla = ColorHelper.ExpandDoublesToHSLAValues(hsla);
+			HueSliderValue = (int)hsla[0];
+			SaturationSliderValue = (int)hsla[1];
+			LuminositySliderValue = (int)hsla[2];
+			AlphaSliderValue = (int)hsla[3];
 		}
 
 		#region Left Mouse Wheel

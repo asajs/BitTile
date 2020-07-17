@@ -92,6 +92,7 @@ namespace BitTile
 			alpha /= 100.0;
 			return new double[] { hue, sat, lue, alpha };
 		}
+
 		public static double[] ExpandDoublesToHSLAValues(double[] values)
 		{
 			double hue = values[0] * 360.0;

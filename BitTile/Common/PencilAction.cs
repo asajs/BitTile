@@ -6,7 +6,7 @@ using Point = System.Windows.Point;
 
 namespace BitTile.Common
 {
-	public class Pencil : IAction
+	public class PencilAction : IAction
 	{
 		public DrawingSpaceData Action(DrawingSpaceData recievedData)
 		{

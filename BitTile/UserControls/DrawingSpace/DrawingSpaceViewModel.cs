@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BitTile.Common;
+using Microsoft.VisualStudio.PlatformUI;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -6,8 +7,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using BitTile.Common;
-using Microsoft.VisualStudio.PlatformUI;
 using Color = System.Drawing.Color;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
@@ -49,7 +48,7 @@ namespace BitTile
 			MouseEnterCommand = new DelegateCommand<Image>((image) => MouseEnter(image));
 			MouseLeaveCommand = new DelegateCommand<Image>((image) => MouseLeave(image));
 			_undo = new Stack<Color[,]>();
-			_clickAction = new Pencil();
+			_clickAction = new PencilAction();
 
 			NewSheet(64, 64, 10);
 		}
@@ -248,6 +247,20 @@ namespace BitTile
 				}
 			}
 		}
+
+		public Color CurrentColor
+		{
+			get { return _currentColor; }
+			set
+			{
+				if (value != _currentColor)
+				{
+					_currentColor = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
 		#endregion
 
 		#region Public Methods
@@ -290,7 +303,8 @@ namespace BitTile
 
 		public void SetColorOfPen(Color color)
 		{
-			_currentColor = color;
+			// Intentionally not using the property to avoid triggering a property changed event.
+			_currentColor = color; 
 		}
 
 		public void SetAction(IAction action)
@@ -324,7 +338,7 @@ namespace BitTile
 			_previousX = -1;
 			_previousY = -1;
 
-			if(_isMouseLeftPressed)
+			if (_isMouseLeftPressed)
 			{
 				ChangeBitMap(image);
 			}
@@ -332,7 +346,7 @@ namespace BitTile
 
 		private void MouseLeave(Image image)
 		{
-			if(_isMouseLeftPressed)
+			if (_isMouseLeftPressed)
 			{
 				ChangeBitMap(image);
 			}
@@ -383,9 +397,11 @@ namespace BitTile
 				_previousX = receiveData.PreviousX;
 				_previousY = receiveData.PreviousY;
 				Colors = receiveData.Colors;
-				_currentColor = receiveData.CurrentColor;
+				CurrentColor = receiveData.CurrentColor;
 				SmallBitTile = receiveData.SmallBitmap;
 				BitTile = receiveData.LargeBitmap;
+
+
 			}
 		}
 		#endregion

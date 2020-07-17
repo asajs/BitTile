@@ -142,7 +142,7 @@
 									<Rectangle.Fill>
 										<LinearGradientBrush StartPoint="0.02, 0" EndPoint="0.98, 0">
 											<GradientStop Color="#00000000" Offset="0"/>
-											<GradientStop Color="{Binding HueSelectedColor}" Offset="1"/>
+											<GradientStop Color="{Binding LeftMouseSelectedColorNoAlpha}" Offset="1"/>
 										</LinearGradientBrush>
 									</Rectangle.Fill>
 								</Rectangle>

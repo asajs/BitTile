@@ -2,7 +2,7 @@
 
 namespace BitTile.Common
 {
-	public class ColorPicker : IAction
+	public class ColorPickerAction : IAction
 	{
 		public DrawingSpaceData Action(DrawingSpaceData recievedData)
 		{

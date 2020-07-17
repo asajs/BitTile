@@ -30,6 +30,35 @@ namespace BitTile.Common
 			return (BitmapSource)image.Source.Clone();
 		}
 
+		public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
+		{
+			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+
+			BitmapData bitmapData = bitmap.LockBits(
+				rect,
+				ImageLockMode.ReadWrite,
+				System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+			try
+			{
+				int size = (rect.Width * rect.Height) * 4;
+				return BitmapSource.Create(
+					bitmap.Width,
+					bitmap.Height,
+					bitmap.HorizontalResolution,
+					bitmap.VerticalResolution,
+					PixelFormats.Bgra32,
+					null,
+					bitmapData.Scan0,
+					size,
+					bitmapData.Stride);
+			}
+			finally
+			{
+				bitmap.UnlockBits(bitmapData);
+			}
+		}
+
 		public static BitmapSource EditTileOfBitmap(BitmapSource source, Color newColor, System.Windows.Point[] points, int pixelSize)
 		{
 			Bitmap b = GetBitmap(source);
@@ -191,35 +220,6 @@ namespace BitTile.Common
 					SolidBrush brush = new SolidBrush(colors[i, j]);
 					gr.FillRectangle(brush, j * pixelSize, i * pixelSize, pixelSize, pixelSize);
 				}
-			}
-		}
-
-		private static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
-		{
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-
-			BitmapData bitmapData = bitmap.LockBits(
-				rect,
-				ImageLockMode.ReadWrite,
-				System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-			try
-			{
-				int size = (rect.Width * rect.Height) * 4;
-				return BitmapSource.Create(
-					bitmap.Width,
-					bitmap.Height,
-					bitmap.HorizontalResolution,
-					bitmap.VerticalResolution,
-					PixelFormats.Bgra32,
-					null,
-					bitmapData.Scan0,
-					size,
-					bitmapData.Stride);
-			}
-			finally
-			{
-				bitmap.UnlockBits(bitmapData);
 			}
 		}
 	}
