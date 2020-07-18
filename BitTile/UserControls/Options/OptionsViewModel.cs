@@ -16,6 +16,7 @@ namespace BitTile
 		private BitmapSource _drawnImage;
 		private BitmapSource _pencilImage;
 		private BitmapSource _colorPickerImage;
+		private BitmapSource _fillImage;
 		private double _widthOfImage;
 		private double _heightOfImage;
 		private double _widthOf3Images;
@@ -26,6 +27,7 @@ namespace BitTile
 		{
 			LeftMouseDownOnPencilCommand = new DelegateCommand(() => NotifyActionChanged("pencil"));
 			LeftMouseDownOnColorPickerCommand = new DelegateCommand(() => NotifyActionChanged("colorpicker"));
+			LeftMouseDownOnFillCommand = new DelegateCommand(() => NotifyActionChanged("fill"));
 
 			WidthOfImage = 64;
 			HeightOfImage = 64;
@@ -37,10 +39,16 @@ namespace BitTile
 			Assembly colorPickerAssembly = Assembly.GetExecutingAssembly();
 			Stream colorPickerStream = colorPickerAssembly.GetManifestResourceStream("BitTile.Resources.colorpicker.png");
 			ColorPickerImage = BitmapManipulator.CreateBitmapSourceFromGdiBitmap(new Bitmap(colorPickerStream));
+
+			Assembly fillAssembly = Assembly.GetExecutingAssembly();
+			Stream fillStream = fillAssembly.GetManifestResourceStream("BitTile.Resources.fill.png");
+			FillImage = BitmapManipulator.CreateBitmapSourceFromGdiBitmap(new Bitmap(fillStream));
 		}
 
 		public DelegateCommand LeftMouseDownOnPencilCommand { get; set; }
 		public DelegateCommand LeftMouseDownOnColorPickerCommand { get; set; }
+		public DelegateCommand LeftMouseDownOnFillCommand { get; set; }
+
 
 		public BitmapSource DrawnImage
 		{
@@ -77,6 +85,20 @@ namespace BitTile
 				if (_colorPickerImage != value)
 				{
 					_colorPickerImage = value;
+					NotifyPropertyChanged();
+				}
+
+			}
+		}
+
+		public BitmapSource FillImage
+		{
+			get { return _fillImage; }
+			set
+			{
+				if (_fillImage != value)
+				{
+					_fillImage = value;
 					NotifyPropertyChanged();
 				}
 

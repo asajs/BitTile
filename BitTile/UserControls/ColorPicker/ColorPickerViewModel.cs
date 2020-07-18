@@ -61,8 +61,9 @@ namespace BitTile
 			ColorDiamondImage = ColorDiamond.Create(HueSelectedColor, DIAMOND_SIZE);
 
 			HueSliderValue = 180;
+			// It doesn't fire unless there is a difference in value... Ha ha
 			SaturationSliderValue = 100;
-			LuminositySliderValue = 0;
+			LuminositySliderValue = -1;
 			AlphaSliderValue = 100;
 			SetStaticColors();
 		}

@@ -22,6 +22,9 @@
 			<Button Background="MintCream" Width="32" Height="32" Command="{Binding LeftMouseDownOnColorPickerCommand}">
 				<Image Source="{Binding ColorPickerImage}"/>
 			</Button>
+			<Button Background="MintCream" Width="32" Height="32" Command="{Binding LeftMouseDownOnFillCommand}">
+				<Image Source="{Binding FillImage}"/>
+			</Button>
 		</UniformGrid>
 		<Image Source="{Binding DrawnImage}" Width="{Binding WidthOfImage}" Height="{Binding HeightOfImage}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 		<Rectangle Width="{Binding WidthOf3Images}" Height="{Binding HeightOf3Images}" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center">

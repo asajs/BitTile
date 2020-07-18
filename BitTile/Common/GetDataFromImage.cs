@@ -1,8 +1,7 @@
-﻿using System.Windows;
+﻿using ExtensionMethods;
+using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ExtensionMethods;
 using Color = System.Drawing.Color;
 
 namespace BitTile.Common

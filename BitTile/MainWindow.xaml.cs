@@ -170,6 +170,9 @@ namespace BitTile
 				case "colorpicker":
 					_drawingSpaceViewModel.SetAction(new ColorPickerAction());
 					break;
+				case "fill":
+					_drawingSpaceViewModel.SetAction(new FillAction());
+					break;
 				default:
 					_drawingSpaceViewModel.SetAction(new PencilAction());
 					break;

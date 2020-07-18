@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <None Remove="colorpicker.png" />
+    <None Remove="Resources\fill.png" />
     <None Remove="Resources\pencil.png" />
   </ItemGroup>
 
@@ -22,6 +23,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\colorpicker.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\fill.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\pencil.png">
