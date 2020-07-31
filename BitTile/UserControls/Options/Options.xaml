@@ -15,7 +15,7 @@
 			<RowDefinition Height="{Binding HeightOf3Images}"/>
 			<RowDefinition Height="20"/>
 		</Grid.RowDefinitions>
-		<UniformGrid Grid.Row="0" HorizontalAlignment="Left" Margin="16">
+		<UniformGrid Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16">
 			<Button Background="MintCream" Width="32" Height="32" Command="{Binding LeftMouseDownOnPencilCommand}">
 				<Image Source="{Binding PencilImage}"/>
 			</Button>

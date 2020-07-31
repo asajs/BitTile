@@ -1,12 +1,11 @@
-﻿using ExtensionMethods;
+﻿using BitTile.Common;
+using BitTile.UserControls.Prompts;
+using ExtensionMethods;
 using Microsoft.VisualStudio.PlatformUI;
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using BitTile.Common;
-using BitTile.UserControls.Prompts;
-using System;
-using System.Drawing;
 
 namespace BitTile
 {
@@ -148,6 +147,12 @@ namespace BitTile
 				case nameof(_drawingSpaceViewModel.CurrentColor):
 					_colorPickerViewModel.SetColor(_drawingSpaceViewModel.CurrentColor);
 					_drawingSpaceViewModel.SetAction(new PencilAction());
+					break;
+				case nameof(_drawingSpaceViewModel.PixelsHigh):
+					_optionsViewModel.HeightOfImage = _drawingSpaceViewModel.PixelsHigh;
+					break;
+				case nameof(_drawingSpaceViewModel.PixelsWide):
+					_optionsViewModel.WidthOfImage = _drawingSpaceViewModel.PixelsWide;
 					break;
 			}
 		}

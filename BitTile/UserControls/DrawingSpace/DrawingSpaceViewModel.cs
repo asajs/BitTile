@@ -296,6 +296,7 @@ namespace BitTile
 		public void HandleSource(BitmapSource source)
 		{
 			Color[,] samples = BitmapManipulator.SampleBitmapSource(source, PixelsHigh, PixelsWide);
+			Colors = samples;
 			SmallBitTile = BitmapManipulator.CreateBitTile(samples, 1, PixelsHigh, PixelsWide);
 			BitTile = BitmapManipulator.CreateBitTile(samples, SizeOfPixel, PixelsHigh, PixelsWide);
 			_undo.Clear();
@@ -400,8 +401,6 @@ namespace BitTile
 				CurrentColor = receiveData.CurrentColor;
 				SmallBitTile = receiveData.SmallBitmap;
 				BitTile = receiveData.LargeBitmap;
-
-
 			}
 		}
 		#endregion

@@ -24,7 +24,7 @@ namespace BitTile.Common
 		public static void GetColorFromPoint(IInputElement element, BitmapSource source, out Color color)
 		{
 			Point point = Mouse.GetPosition(element);
-			color = BitmapManipulator.SampleRegion(source, (int)point.Y, (int)point.X);
+			color = BitmapManipulator.SampleSingleRegion(source, (int)point.Y, (int)point.X);
 		}
 	}
 }

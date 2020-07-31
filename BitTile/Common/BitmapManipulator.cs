@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
@@ -102,7 +103,7 @@ namespace BitTile.Common
 			return CreateBitmapSourceFromGdiBitmap(b);
 		}
 
-		public static Color SampleRegion(BitmapSource source, int y, int x)
+		public static Color SampleSingleRegion(BitmapSource source, int y, int x)
 		{
 			Bitmap bitmap = GetBitmap(source);
 
@@ -116,7 +117,7 @@ namespace BitTile.Common
 
 			Marshal.Copy(bData.Scan0, data, 0, size);
 
-			Color color = SampleRegion(data, 1, 1, y, x, bData.Stride, bits);
+			Color color = SampleLargeRegion(data, 1, 1, y, x, bData.Stride, bits);
 
 			bitmap.UnlockBits(bData);
 
@@ -132,8 +133,8 @@ namespace BitTile.Common
 
 			int size = bData.Stride * bData.Height;
 
-			int heightFactor = bData.Height / destHeight;
-			int widthFactor = bData.Width / destWidth;
+			double heightFactor = bData.Height / (double)destHeight;
+			double widthFactor = bData.Width / (double)destWidth;
 
 			byte[] data = new byte[size];
 			int bits = bitsPerPixel / 8;
@@ -142,11 +143,24 @@ namespace BitTile.Common
 
 			Marshal.Copy(bData.Scan0, data, 0, size);
 
-			for (int y = 0; y < destHeight; y++)
+			if (widthFactor >= 1 && heightFactor >= 1)
 			{
-				for (int x = 0; x < destWidth; x++)
+				for (int y = 0; y < destHeight; y++)
 				{
-					colors[y, x] = SampleRegion(data, heightFactor, widthFactor, y, x, bData.Stride, bits);
+					for (int x = 0; x < destWidth; x++)
+					{
+						colors[y, x] = SampleLargeRegion(data, (int)heightFactor, (int)widthFactor, y, x, bData.Stride, bits);
+					}
+				}
+			}
+			else
+			{
+				for (int y = 0; y < destHeight; y++)
+				{
+					for (int x = 0; x < destWidth; x++)
+					{
+						colors[y, x] = SampleSmallRegion(data, heightFactor, widthFactor, y, x, bData.Stride, bits);
+					}
 				}
 			}
 
@@ -155,7 +169,46 @@ namespace BitTile.Common
 			return colors;
 		}
 
-		private static Color SampleRegion(byte[] data, int heightFactor, int widthFactor, int startY, int startX, int incrementY, int incrementX)
+		private static Color[,] SmartBlowUp(byte[] data, double heightFactor, double widthFactor, int incrementY, int incrementX, int imageHeight, int imageWidth)
+		{
+			Color[,] originalColors = new Color[imageHeight, imageWidth];
+
+			for (int y = 0; y < imageHeight; y++)
+			{
+				for (int x = 0; x < imageWidth; x++)
+				{
+					originalColors[y, x] = SampleLargeRegion(data, (int)heightFactor, (int)widthFactor, y, x, incrementY, incrementX);
+				}
+			}
+
+			return originalColors;
+		}
+
+		private static Color SampleSmallRegion(byte[] data, double heightFactor, double widthFactor, int startY, int startX, int incrementY, int incrementX)
+		{
+			int redSample = 0;
+			int greenSample = 0;
+			int blueSample = 0;
+			int alphaSample = 0;
+
+			int y = (int)Math.Floor(startY * heightFactor) * incrementY;
+			int x = (int)Math.Floor(startX * widthFactor) * incrementX;
+
+			blueSample += data[y + x];
+			greenSample += data[y + x + 1];
+			redSample += data[y + x + 2];
+			alphaSample += data[y + x + 3];
+
+			byte r = Convert.ToByte(redSample);
+			byte g = Convert.ToByte(greenSample);
+			byte b = Convert.ToByte(blueSample);
+			byte a = Convert.ToByte(alphaSample);
+
+			Color color = Color.FromArgb(a, r, g, b);
+			return color;
+		}
+
+		private static Color SampleLargeRegion(byte[] data, int heightFactor, int widthFactor, int startY, int startX, int incrementY, int incrementX)
 		{
 			int redSample = 0;
 			int greenSample = 0;
