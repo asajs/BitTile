@@ -1,4 +1,4 @@
-﻿namespace BitTile.Common
+﻿namespace BitTile.Common.Interfaces
 {
 	public interface IAction
 	{

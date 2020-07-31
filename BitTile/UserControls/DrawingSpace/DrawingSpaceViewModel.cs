@@ -1,4 +1,6 @@
 ﻿using BitTile.Common;
+using BitTile.Common.Actions;
+using BitTile.Common.Interfaces;
 using Microsoft.VisualStudio.PlatformUI;
 using System.Collections.Generic;
 using System.ComponentModel;

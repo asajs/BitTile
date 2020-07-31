@@ -1,6 +1,7 @@
-﻿using System.Drawing;
+﻿using BitTile.Common.Interfaces;
+using System.Drawing;
 
-namespace BitTile.Common
+namespace BitTile.Common.Actions
 {
 	public class ColorPickerAction : IAction
 	{

@@ -1,4 +1,6 @@
 ﻿using BitTile.Common;
+using BitTile.Common.Actions;
+using BitTile.Common.Interfaces;
 using Microsoft.VisualStudio.PlatformUI;
 using System;
 using System.ComponentModel;
@@ -25,9 +27,9 @@ namespace BitTile
 
 		public OptionsViewModel()
 		{
-			LeftMouseDownOnPencilCommand = new DelegateCommand(() => NotifyActionChanged("pencil"));
-			LeftMouseDownOnColorPickerCommand = new DelegateCommand(() => NotifyActionChanged("colorpicker"));
-			LeftMouseDownOnFillCommand = new DelegateCommand(() => NotifyActionChanged("fill"));
+			LeftMouseDownOnPencilCommand = new DelegateCommand(() => NotifyActionChanged(new PencilAction()));
+			LeftMouseDownOnColorPickerCommand = new DelegateCommand(() => NotifyActionChanged(new ColorPickerAction()));
+			LeftMouseDownOnFillCommand = new DelegateCommand(() => NotifyActionChanged(new FillAction()));
 
 			WidthOfImage = 64;
 			HeightOfImage = 64;
@@ -179,9 +181,9 @@ namespace BitTile
 
 		public event EventHandler<ActionChangedEventArgs> ActionChanged;
 
-		private void NotifyActionChanged([CallerMemberName] string actionName = "pencil")
+		private void NotifyActionChanged(IAction action)
 		{
-			ActionChanged?.Invoke(this, new ActionChangedEventArgs(actionName));
+			ActionChanged?.Invoke(this, new ActionChangedEventArgs(action));
 		}
 
 		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")

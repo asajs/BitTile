@@ -1,4 +1,5 @@
 ﻿using BitTile.Common;
+using BitTile.Common.Actions;
 using BitTile.UserControls.Prompts;
 using ExtensionMethods;
 using Microsoft.VisualStudio.PlatformUI;
@@ -167,22 +168,7 @@ namespace BitTile
 
 		private void OptionsActionChanged(object sender, ActionChangedEventArgs e)
 		{
-			switch (e.Action)
-			{
-				case "pencil":
-					_drawingSpaceViewModel.SetAction(new PencilAction());
-					break;
-				case "colorpicker":
-					_drawingSpaceViewModel.SetAction(new ColorPickerAction());
-					break;
-				case "fill":
-					_drawingSpaceViewModel.SetAction(new FillAction());
-					break;
-				default:
-					_drawingSpaceViewModel.SetAction(new PencilAction());
-					break;
-			}
-
+			_drawingSpaceViewModel.SetAction(e.Action);
 		}
 
 		private void Window_Closing(object sender, CancelEventArgs e)

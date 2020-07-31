@@ -1,14 +1,15 @@
-﻿using System;
+﻿using BitTile.Common.Interfaces;
+using System;
 
 namespace BitTile.Common
 {
 	public class ActionChangedEventArgs : EventArgs
 	{
-		public ActionChangedEventArgs(string action)
+		public ActionChangedEventArgs(IAction action)
 		{
 			Action = action;
 		}
 
-		public string Action { get; set; }
+		public IAction Action { get; set; }
 	}
 }

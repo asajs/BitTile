@@ -1,10 +1,11 @@
-﻿using System;
+﻿using BitTile.Common.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Media.Imaging;
 using Point = System.Windows.Point;
 
-namespace BitTile.Common
+namespace BitTile.Common.Actions
 {
 	public class PencilAction : IAction
 	{
