@@ -24,7 +24,7 @@ namespace BitTile.Common.Actions
 												out int y, 
 												out int x);
 
-			if (x != previousX || y != previousY)
+			if (x != previousX || y != previousY && colors[y, x] != currentColor)
 			{
 				if (previousX == -1)
 				{

@@ -22,15 +22,18 @@ namespace BitTile.Common.Actions
 									out int y,
 									out int x);
 
-			Point[] pointsToFill = PointsGrabber.GrabPointsWithinFuzzValue(colors, x, y);
-
-			foreach(Point point in pointsToFill.ToList())
+			if (colors[y, x] != currentColor)
 			{
-				colors[(int)point.Y, (int)point.X] = currentColor;
-			}
+				Point[] pointsToFill = PointsGrabber.GrabPointsWithinFuzzValue(colors, x, y);
 
-			smallBitmap = BitmapManipulator.EditTileOfBitmap(smallBitmap, currentColor, pointsToFill, 1);
-			largeBitmap = BitmapManipulator.EditTileOfBitmap(largeBitmap, currentColor, pointsToFill, recievedData.SizeOfPixel);
+				foreach (Point point in pointsToFill.ToList())
+				{
+					colors[(int)point.Y, (int)point.X] = currentColor;
+				}
+
+				smallBitmap = BitmapManipulator.EditTileOfBitmap(smallBitmap, currentColor, pointsToFill, 1);
+				largeBitmap = BitmapManipulator.EditTileOfBitmap(largeBitmap, currentColor, pointsToFill, recievedData.SizeOfPixel);
+			}
 
 			DrawingSpaceData sendData = new DrawingSpaceData(recievedData.Element,
 															recievedData.SizeOfPixel,
