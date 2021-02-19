@@ -18,6 +18,9 @@ namespace BitTile
 	public class DrawingSpaceViewModel : INotifyPropertyChanged
 	{
 		#region Private Fields
+		private readonly int _maxPixelSize;
+		private readonly int _minPixelSize;
+
 		private Stack<Color[,]> _undo;
 		private BitmapSource _bitTile;
 		private TileBrush _tileBrush;
@@ -29,6 +32,7 @@ namespace BitTile
 		private int _pixelsWide;
 		private int _sizeOfPixel;
 		private bool _isMouseLeftPressed;
+		private Visibility _pixelBoxVisibility;
 		private IAction _clickAction;
 
 		private int _previousX = -1;
@@ -43,16 +47,24 @@ namespace BitTile
 
 		public DrawingSpaceViewModel()
 		{
+			_maxPixelSize = int.Parse(Properties.Resources.MaxPixelSize);
+			_minPixelSize = int.Parse(Properties.Resources.MinPizelSize);
+
 			_isMouseLeftPressed = false;
 			LeftMouseDownCommand = new DelegateCommand<Image>((image) => LeftMouseDown(image));
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
 			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
 			MouseEnterCommand = new DelegateCommand<Image>((image) => MouseEnter(image));
 			MouseLeaveCommand = new DelegateCommand<Image>((image) => MouseLeave(image));
+			MouseWheelCommand = new DelegateCommand((eventArgs) => MouseWheelMove(eventArgs));
 			_undo = new Stack<Color[,]>();
 			_clickAction = new PencilAction();
 
-			NewSheet(64, 64, 10);
+			int width = int.Parse(Properties.Resources.DefaultWidth);
+			int height = int.Parse(Properties.Resources.DefaultHeight);
+			int size = int.Parse(Properties.Resources.DefaultPixelSize);
+
+			NewSheet(height, width, size);
 		}
 
 		#region Commands
@@ -65,10 +77,13 @@ namespace BitTile
 		public DelegateCommand<Image> MouseEnterCommand { get; set; }
 
 		public DelegateCommand<Image> MouseLeaveCommand { get; set; }
+
+		public DelegateCommand MouseWheelCommand { get; set; }
 		#endregion
 
 		#region Properties
-		public BitmapSource BitTile
+
+		public BitmapSource SmallBitTile
 		{
 			get { return _bitTile; }
 			set
@@ -80,8 +95,6 @@ namespace BitTile
 				}
 			}
 		}
-
-		public BitmapSource SmallBitTile { get; set; }
 
 		public Point TopLeft
 		{
@@ -233,9 +246,31 @@ namespace BitTile
 					BottomRight = new Point(_sizeOfPixel, _sizeOfPixel);
 					BottomLeft = new Point(_sizeOfPixel, 0);
 					UpdateSecondaryProperties();
+					if (_sizeOfPixel > 3)
+					{
+						PixelBoxVisibility = Visibility.Visible;
+					}
+					else
+					{
+						PixelBoxVisibility = Visibility.Hidden;
+					}
 				}
 			}
 		}
+
+		public Visibility PixelBoxVisibility
+		{
+			get { return _pixelBoxVisibility; }
+			set
+			{
+				if (value != _pixelBoxVisibility)
+				{
+					_pixelBoxVisibility = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
+
 
 		public TileBrush TileBrush
 		{
@@ -272,7 +307,6 @@ namespace BitTile
 			{
 				Colors = _undo.Pop();
 				SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
-				BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, PixelsHigh, PixelsWide);
 			}
 		}
 
@@ -292,7 +326,6 @@ namespace BitTile
 				}
 			}
 			SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
-			BitTile = BitmapManipulator.CreateBitTile(Colors, SizeOfPixel, PixelsHigh, PixelsWide);
 		}
 
 		public void HandleSource(BitmapSource source)
@@ -300,7 +333,6 @@ namespace BitTile
 			Color[,] samples = BitmapManipulator.SampleBitmapSource(source, PixelsHigh, PixelsWide);
 			Colors = samples;
 			SmallBitTile = BitmapManipulator.CreateBitTile(samples, 1, PixelsHigh, PixelsWide);
-			BitTile = BitmapManipulator.CreateBitTile(samples, SizeOfPixel, PixelsHigh, PixelsWide);
 			_undo.Clear();
 		}
 
@@ -323,6 +355,21 @@ namespace BitTile
 		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		private void MouseWheelMove(object sender)
+		{
+			if (Keyboard.Modifiers == ModifierKeys.Control && sender is MouseWheelEventArgs e)
+			{
+				if (e.Delta > 0 && SizeOfPixel < _maxPixelSize)
+				{
+					SizeOfPixel++;
+				}
+				else if (e.Delta < 0 && SizeOfPixel > _minPixelSize)
+				{
+					SizeOfPixel--;
+				}
+			}
 		}
 
 		private void UpdateSecondaryProperties()
@@ -390,7 +437,7 @@ namespace BitTile
 			if (image is IInputElement element)
 			{
 				DrawingSpaceData sendData = new DrawingSpaceData(element, SizeOfPixel, PixelsHigh, PixelsWide, _previousX, _previousY,
-															_isMouseLeftPressed, Colors, _currentColor, SmallBitTile, BitTile);
+															_isMouseLeftPressed, Colors, _currentColor, SmallBitTile);
 
 				DrawingSpaceData receiveData = _clickAction.Action(sendData);
 
@@ -402,7 +449,6 @@ namespace BitTile
 				Colors = receiveData.Colors;
 				CurrentColor = receiveData.CurrentColor;
 				SmallBitTile = receiveData.SmallBitmap;
-				BitTile = receiveData.LargeBitmap;
 			}
 		}
 		#endregion

@@ -7,8 +7,8 @@ namespace BitTile.Common.Actions
 	{
 		public DrawingSpaceData Action(DrawingSpaceData recievedData)
 		{
-			GetDataFromImage.GetColorFromPoint(recievedData.Element, recievedData.LargeBitmap, out Color color);
-			DrawingSpaceData sendData = new DrawingSpaceData(recievedData.Element,
+			GetDataFromImage.GetColorFromPoint(recievedData.MouseElement, recievedData.SmallBitmap, out Color color);
+			DrawingSpaceData sendData = new DrawingSpaceData(recievedData.MouseElement,
 															recievedData.SizeOfPixel,
 															recievedData.PixelsHigh,
 															recievedData.PixelsWide,
@@ -17,8 +17,7 @@ namespace BitTile.Common.Actions
 															recievedData.IsLeftMousePressed,
 															recievedData.Colors,
 															color,
-															recievedData.SmallBitmap,
-															recievedData.LargeBitmap);
+															recievedData.SmallBitmap);
 			return sendData;
 		}
 

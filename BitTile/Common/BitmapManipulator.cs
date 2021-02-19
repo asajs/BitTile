@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
@@ -19,6 +18,10 @@ namespace BitTile.Common
 			{
 				using (Graphics graphics = Graphics.FromImage(bitmap))
 				{
+					//graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode
+					graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+					graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+					graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.AssumeLinear;
 					DrawBitMap(graphics, colors, pixelSize, pixelsHeight, pixelsWide);
 				}
 				image = CreateBitmapSourceFromGdiBitmap(bitmap);

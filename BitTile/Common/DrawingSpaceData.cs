@@ -6,7 +6,7 @@ namespace BitTile.Common
 {
 	public struct DrawingSpaceData
 	{
-		public DrawingSpaceData(IInputElement element, 
+		public DrawingSpaceData(IInputElement mouseElement, 
 								int sizeOfPixel, 
 								int pixelsHigh, 
 								int pixelsWide,
@@ -15,11 +15,10 @@ namespace BitTile.Common
 								bool isLeftMousePressed,
 								Color[,] colors,
 								Color currentColor,
-								BitmapSource smallBitmap,
-								BitmapSource largeBitmap)
+								BitmapSource smallBitmap)
 
 		{
-			Element = element;
+			MouseElement = mouseElement;
 			SizeOfPixel = sizeOfPixel;
 			PixelsHigh = pixelsHigh;
 			PixelsWide = pixelsWide;
@@ -29,10 +28,9 @@ namespace BitTile.Common
 			Colors = colors;
 			CurrentColor = currentColor;
 			SmallBitmap = smallBitmap;
-			LargeBitmap = largeBitmap;
 		}
 
-		public IInputElement Element { get; }
+		public IInputElement MouseElement { get; }
 		public int SizeOfPixel { get; }
 		public int PixelsHigh { get; }
 		public int PixelsWide { get; }
@@ -42,6 +40,5 @@ namespace BitTile.Common
 		public Color[,] Colors { get; }
 		public Color CurrentColor { get; }
 		public BitmapSource SmallBitmap { get; }
-		public BitmapSource LargeBitmap { get; }
 	}
 }

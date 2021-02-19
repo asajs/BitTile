@@ -1,12 +1,12 @@
-﻿using BitTile.Common;
+﻿using System;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using BitTile.Common;
 using BitTile.Common.Actions;
 using BitTile.UserControls.Prompts;
 using ExtensionMethods;
 using Microsoft.VisualStudio.PlatformUI;
-using System;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace BitTile
 {
@@ -141,7 +141,7 @@ namespace BitTile
 		{
 			switch(e.PropertyName)
 			{
-				case nameof(_drawingSpaceViewModel.BitTile):
+				case nameof(_drawingSpaceViewModel.SmallBitTile):
 					_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
 					_saveUpToDate = false;
 					break;

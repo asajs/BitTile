@@ -11,11 +11,10 @@ namespace BitTile.Common.Actions
 		public DrawingSpaceData Action(DrawingSpaceData recievedData)
 		{
 			BitmapSource smallBitmap = recievedData.SmallBitmap;
-			BitmapSource largeBitmap = recievedData.LargeBitmap;
 			Color[,] colors = recievedData.Colors;
 			Color currentColor = recievedData.CurrentColor;
 
-			GetDataFromImage.GetNormalizedPoints(recievedData.Element,
+			GetDataFromImage.GetNormalizedPoints(recievedData.MouseElement,
 									recievedData.PixelsWide,
 									recievedData.PixelsHigh,
 									recievedData.SizeOfPixel,
@@ -32,10 +31,9 @@ namespace BitTile.Common.Actions
 				}
 
 				smallBitmap = BitmapManipulator.EditTileOfBitmap(smallBitmap, currentColor, pointsToFill, 1);
-				largeBitmap = BitmapManipulator.EditTileOfBitmap(largeBitmap, currentColor, pointsToFill, recievedData.SizeOfPixel);
 			}
 
-			DrawingSpaceData sendData = new DrawingSpaceData(recievedData.Element,
+			DrawingSpaceData sendData = new DrawingSpaceData(recievedData.MouseElement,
 															recievedData.SizeOfPixel,
 															recievedData.PixelsHigh,
 															recievedData.PixelsWide,
@@ -44,8 +42,7 @@ namespace BitTile.Common.Actions
 															recievedData.IsLeftMousePressed,
 															colors,
 															currentColor,
-															smallBitmap,
-															largeBitmap);
+															smallBitmap);
 			return sendData;
 		}
 	}

@@ -12,13 +12,35 @@ namespace BitTile.UserControls.Prompts
 	/// </summary>
 	public partial class NewPrompt : Window
 	{
+		private readonly int _maxImageWidth;
+		private readonly int _minImageWidth;
+		private readonly int _maxImageHeight;
+		private readonly int _minImageHeight;
+		private readonly int _maxPixelSize;
+		private readonly int _minPixelSize;
+		private readonly int _defaultWidth;
+		private readonly int _defaultHeight;
+		private readonly int _defaultPixelSize;
+
 		public NewPrompt()
 		{
-			PixelHeight = "64";
-			PixelWidth = "64";
-			SizeOfPixel = "10";
+			// Deliberately not fail safe. If it throws an exception you should know right away!
+			_maxImageWidth = int.Parse(Properties.Resources.MaxImageWidth);
+			_minImageWidth = int.Parse(Properties.Resources.MinImageWidth);
+			_maxImageHeight = int.Parse(Properties.Resources.MaxImageHeight);
+			_minImageHeight = int.Parse(Properties.Resources.MinImageHeight);
+			_maxPixelSize = int.Parse(Properties.Resources.MaxPixelSize);
+			_minPixelSize = int.Parse(Properties.Resources.MinPizelSize);
+			_defaultWidth = int.Parse(Properties.Resources.DefaultWidth);
+			_defaultHeight = int.Parse(Properties.Resources.DefaultHeight);
+			_defaultPixelSize = int.Parse(Properties.Resources.DefaultPixelSize);
+
+			PixelHeight = Properties.Resources.DefaultHeight;
+			PixelWidth = Properties.Resources.DefaultWidth;
+			SizeOfPixel = Properties.Resources.DefaultPixelSize;
 			CreateCommand = new DelegateCommand(() => FireCreateEvent());
 			CancelClickCommand = new DelegateCommand(() => Cancel());
+
 			InitializeComponent();
 		}
 
@@ -43,9 +65,9 @@ namespace BitTile.UserControls.Prompts
 
 			if (widthSuccessful && heightSuccessful && sizeSuccessful)
 			{
-				width = Math.Max(1, Math.Min(256, width));
-				height = Math.Max(1, Math.Min(256, height));
-				size = Math.Max(1, Math.Min(20, size));
+				width = Math.Max(_minImageWidth, Math.Min(_maxImageWidth, width));
+				height = Math.Max(_minImageHeight, Math.Min(_maxImageHeight, height));
+				size = Math.Max(_minPixelSize, Math.Min(_maxPixelSize, size));
 
 				CreateNewEventArgs eventArgs = new CreateNewEventArgs(width, height, size);
 				CreateNewEvent?.Invoke(this, eventArgs);
@@ -53,7 +75,7 @@ namespace BitTile.UserControls.Prompts
 			else
 			{
 				// If they click create and managed to input invalid items, resort to defaults.
-				CreateNewEventArgs eventArgs = new CreateNewEventArgs(64, 64, 10);
+				CreateNewEventArgs eventArgs = new CreateNewEventArgs(_defaultWidth, _defaultHeight, _defaultPixelSize);
 				CreateNewEvent?.Invoke(this, eventArgs);
 			}
 		}
@@ -62,7 +84,7 @@ namespace BitTile.UserControls.Prompts
 		{
 			if (sender is TextBox box)
 			{
-				HandleInput(box, e, 1, 128);
+				HandleInput(box, e, _minImageWidth, _maxImageHeight);
 			}
 		}
 
@@ -85,7 +107,7 @@ namespace BitTile.UserControls.Prompts
 		{
 			if (sender is TextBox box)
 			{
-				HandleInput(box, e, 1, 20);
+				HandleInput(box, e, _minPixelSize, _maxPixelSize);
 			}
 		}
 
