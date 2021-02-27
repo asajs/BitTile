@@ -15,7 +15,7 @@ using Point = System.Windows.Point;
 
 namespace BitTile
 {
-	public class DrawingSpaceViewModel : INotifyPropertyChanged
+	public class DrawingSpaceViewModel : INotifyPropertyChanged, IImageData
 	{
 		#region Private Fields
 		private readonly int _maxPixelSize;
@@ -31,12 +31,8 @@ namespace BitTile
 		private int _pixelsHigh;
 		private int _pixelsWide;
 		private int _sizeOfPixel;
-		private bool _isMouseLeftPressed;
 		private Visibility _pixelBoxVisibility;
 		private IAction _clickAction;
-
-		private int _previousX = -1;
-		private int _previousY = -1;
 
 		private Rect _gridSize;
 		private Point _topLeft;
@@ -50,10 +46,10 @@ namespace BitTile
 			_maxPixelSize = int.Parse(Properties.Resources.MaxPixelSize);
 			_minPixelSize = int.Parse(Properties.Resources.MinPizelSize);
 
-			_isMouseLeftPressed = false;
+			IsMouseLeftPressed = false;
 			LeftMouseDownCommand = new DelegateCommand<Image>((image) => LeftMouseDown(image));
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
-			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => _isMouseLeftPressed);
+			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => IsMouseLeftPressed);
 			MouseEnterCommand = new DelegateCommand<Image>((image) => MouseEnter(image));
 			MouseLeaveCommand = new DelegateCommand<Image>((image) => MouseLeave(image));
 			MouseWheelCommand = new DelegateCommand((eventArgs) => MouseWheelMove(eventArgs));
@@ -94,6 +90,12 @@ namespace BitTile
 					NotifyPropertyChanged();
 				}
 			}
+		}
+
+		public IInputElement MouseElement 
+		{ 
+			get; 
+			set; 
 		}
 
 		public Point TopLeft
@@ -164,13 +166,10 @@ namespace BitTile
 		public Color[,] Colors
 		{
 			get { return _colors; }
-			private set
+			set
 			{
-				if (value != _colors)
-				{
-					_colors = value;
-					NotifyPropertyChanged();
-				}
+				_colors = value;
+				BitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
 			}
 		}
 
@@ -298,6 +297,24 @@ namespace BitTile
 			}
 		}
 
+		public int PreviousX
+		{
+			get;
+			set;
+		}
+
+		public int PreviousY
+		{
+			get;
+			set;
+		}
+
+		public bool IsMouseLeftPressed
+		{
+			get;
+			set;
+		}
+
 		#endregion
 
 		#region Public Methods
@@ -384,11 +401,11 @@ namespace BitTile
 
 		private void MouseEnter(Image image)
 		{
-			_isMouseLeftPressed = Mouse.LeftButton == MouseButtonState.Pressed;
-			_previousX = -1;
-			_previousY = -1;
+			IsMouseLeftPressed = Mouse.LeftButton == MouseButtonState.Pressed;
+			PreviousX = -1;
+			PreviousY = -1;
 
-			if (_isMouseLeftPressed)
+			if (IsMouseLeftPressed)
 			{
 				ChangeBitMap(image);
 			}
@@ -396,7 +413,7 @@ namespace BitTile
 
 		private void MouseLeave(Image image)
 		{
-			if (_isMouseLeftPressed)
+			if (IsMouseLeftPressed)
 			{
 				ChangeBitMap(image);
 			}
@@ -406,7 +423,7 @@ namespace BitTile
 		{
 			if (image is IInputElement)
 			{
-				_isMouseLeftPressed = true;
+				IsMouseLeftPressed = true;
 				Color[,] newColors = new Color[PixelsHigh, PixelsWide];
 				for (int i = 0; i < PixelsHigh; i++)
 				{
@@ -422,9 +439,9 @@ namespace BitTile
 
 		private void LeftMouseUp()
 		{
-			_previousX = -1;
-			_previousY = -1;
-			_isMouseLeftPressed = false;
+			PreviousX = -1;
+			PreviousY = -1;
+			IsMouseLeftPressed = false;
 		}
 
 		private void MouseMove(Image image)
@@ -436,19 +453,9 @@ namespace BitTile
 		{
 			if (image is IInputElement element)
 			{
-				DrawingSpaceData sendData = new DrawingSpaceData(element, SizeOfPixel, PixelsHigh, PixelsWide, _previousX, _previousY,
-															_isMouseLeftPressed, Colors, _currentColor, BitTile);
-
-				DrawingSpaceData receiveData = _clickAction.Action(sendData);
-
-				SizeOfPixel = receiveData.SizeOfPixel;
-				PixelsHigh = receiveData.PixelsHigh;
-				PixelsWide = receiveData.PixelsWide;
-				_previousX = receiveData.PreviousX;
-				_previousY = receiveData.PreviousY;
-				Colors = receiveData.Colors;
-				CurrentColor = receiveData.CurrentColor;
-				BitTile = receiveData.SmallBitmap;
+				MouseElement = element;
+				
+				_clickAction.Action(this);
 			}
 		}
 		#endregion

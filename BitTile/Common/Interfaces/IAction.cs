@@ -2,6 +2,6 @@
 {
 	public interface IAction
 	{
-		DrawingSpaceData Action(DrawingSpaceData data);
+		void Action(IImageData data);
 	}
 }

@@ -1,16 +1,14 @@
-﻿using BitTile.Common.Interfaces;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Linq;
-using System.Windows.Media.Imaging;
+using BitTile.Common.Interfaces;
 using Point = System.Windows.Point;
 
 namespace BitTile.Common.Actions
 {
 	public class FillAction : IAction
 	{
-		public DrawingSpaceData Action(DrawingSpaceData recievedData)
+		public void Action(IImageData recievedData)
 		{
-			BitmapSource smallBitmap = recievedData.SmallBitmap;
 			Color[,] colors = recievedData.Colors;
 			Color currentColor = recievedData.CurrentColor;
 
@@ -30,20 +28,8 @@ namespace BitTile.Common.Actions
 					colors[(int)point.Y, (int)point.X] = currentColor;
 				}
 
-				smallBitmap = BitmapManipulator.EditTileOfBitmap(smallBitmap, currentColor, pointsToFill, 1);
+				recievedData.Colors = colors;
 			}
-
-			DrawingSpaceData sendData = new DrawingSpaceData(recievedData.MouseElement,
-															recievedData.SizeOfPixel,
-															recievedData.PixelsHigh,
-															recievedData.PixelsWide,
-															recievedData.PreviousX,
-															recievedData.PreviousY,
-															recievedData.IsLeftMousePressed,
-															colors,
-															currentColor,
-															smallBitmap);
-			return sendData;
 		}
 	}
 }

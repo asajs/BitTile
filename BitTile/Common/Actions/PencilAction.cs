@@ -1,19 +1,17 @@
-﻿using BitTile.Common.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Media.Imaging;
+using BitTile.Common.Interfaces;
 using Point = System.Windows.Point;
 
 namespace BitTile.Common.Actions
 {
 	public class PencilAction : IAction
 	{
-		public DrawingSpaceData Action(DrawingSpaceData recievedData)
+		public void Action(IImageData recievedData)
 		{
 			int previousX = recievedData.PreviousX;
 			int previousY = recievedData.PreviousY;
-			BitmapSource smallBitmap = recievedData.SmallBitmap;
 			Color[,] colors = recievedData.Colors;
 			Color currentColor = recievedData.CurrentColor;
 			GetDataFromImage.GetNormalizedPoints(recievedData.MouseElement, 
@@ -35,25 +33,11 @@ namespace BitTile.Common.Actions
 				{
 					colors[(int)savePoint.Y, (int)savePoint.X] = currentColor;
 				}
-				previousY = y;
-				previousX = x;
-				smallBitmap = BitmapManipulator.EditTileOfBitmap(smallBitmap, currentColor, points, 1);
+				recievedData.Colors = colors;
 			}
-
-			DrawingSpaceData sendData = new DrawingSpaceData(recievedData.MouseElement,
-															recievedData.SizeOfPixel,
-															recievedData.PixelsHigh,
-															recievedData.PixelsWide,
-															previousX,
-															previousY,
-															recievedData.IsLeftMousePressed,
-															colors,
-															currentColor,
-															smallBitmap);
-			return sendData;
 		}
 
-		private Point[] DrawLine(double x1, double y1, double x2, double y2)
+		private static Point[] DrawLine(double x1, double y1, double x2, double y2)
 		{
 			if (Math.Abs(y2 - y1) < Math.Abs(x2 - x1))
 			{
