@@ -1,13 +1,11 @@
-﻿using ExtensionMethods;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Linq;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using BitTile.Common;
+using ExtensionMethods;
 using Color = System.Drawing.Color;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace BitTile
 {
@@ -25,7 +23,7 @@ namespace BitTile
 					DrawColorDiamond(graphics, diamondPoints, listColors.ToArray());
 				}
 
-				image = CreateBitmapSourceFromGdiBitmap(bitmap);
+				image = BitmapManipulator.CreateBitmapSourceFromGdiBitmap(bitmap);
 			}
 			return image;
 		}
@@ -49,35 +47,6 @@ namespace BitTile
 			int c = cols.Length;
 			return Color.FromArgb(cols.Sum(x => x.A) / c, cols.Sum(x => x.R) / c,
 				cols.Sum(x => x.G) / c, cols.Sum(x => x.B) / c);
-		}
-
-		private static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
-		{
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-
-			BitmapData bitmapData = bitmap.LockBits(
-				rect,
-				ImageLockMode.ReadWrite,
-				System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-			try
-			{
-				int size = (rect.Width * rect.Height) * 4;
-				return BitmapSource.Create(
-					bitmap.Width,
-					bitmap.Height,
-					bitmap.HorizontalResolution,
-					bitmap.VerticalResolution,
-					PixelFormats.Bgra32,
-					null,
-					bitmapData.Scan0,
-					size,
-					bitmapData.Stride);
-			}
-			finally
-			{
-				bitmap.UnlockBits(bitmapData);
-			}
 		}
 
 		private static List<Color> GetDiamondTipColors(System.Windows.Media.Color hue)

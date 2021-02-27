@@ -6,6 +6,7 @@
 			 xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
 			 xmlns:local="clr-namespace:BitTile"
 			 mc:Ignorable="d" 
+			 UseLayoutRounding="True"
 			 d:DesignHeight="450" d:DesignWidth="800">
 	
 	<UserControl.Resources>
@@ -44,7 +45,7 @@
 	</UserControl.Resources>
 	
 	<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-		<Viewbox Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}">
+		<Viewbox Stretch="Fill" Width="{Binding Width}" Height="{Binding Height}" UseLayoutRounding="True">
 			<Grid x:Name="PixelContainer" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width}" Height="{Binding Height}">
 				<Rectangle Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Grid}}, Path=ActualWidth}" Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Grid}}, Path=ActualHeight}">
 					<Rectangle.Fill>
@@ -56,7 +57,7 @@
 					</Rectangle.Fill>
 				</Rectangle>
 
-				<Image x:Name="DrawingCanvas" Source="{Binding SmallBitTile}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width}" Height="{Binding Height}">
+				<Image x:Name="DrawingCanvas" Source="{Binding BitTile}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width}" Height="{Binding Height}" RenderOptions.BitmapScalingMode="NearestNeighbor">
 					<b:Interaction.Triggers>
 						<b:EventTrigger EventName="MouseLeftButtonDown">
 							<b:InvokeCommandAction Command="{Binding LeftMouseDownCommand}" CommandParameter="{Binding ElementName=DrawingCanvas}"/>

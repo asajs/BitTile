@@ -14,14 +14,10 @@ namespace BitTile.Common
 		public static BitmapSource CreateBitTile(Color[,] colors, int pixelSize, int pixelsHeight, int pixelsWide)
 		{
 			BitmapSource image;
-			using (Bitmap bitmap = new Bitmap(pixelsWide * pixelSize, pixelsHeight * pixelSize))
+			using (Bitmap bitmap = new Bitmap(pixelsWide, pixelsHeight))
 			{
 				using (Graphics graphics = Graphics.FromImage(bitmap))
 				{
-					//graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode
-					graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-					graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-					graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.AssumeLinear;
 					DrawBitMap(graphics, colors, pixelSize, pixelsHeight, pixelsWide);
 				}
 				image = CreateBitmapSourceFromGdiBitmap(bitmap);
@@ -274,7 +270,7 @@ namespace BitTile.Common
 				for (int j = 0; j < pixelsWide; j++)
 				{
 					SolidBrush brush = new SolidBrush(colors[i, j]);
-					gr.FillRectangle(brush, j * pixelSize, i * pixelSize, pixelSize, pixelSize);
+					gr.FillRectangle(brush, j, i, 1, 1);
 				}
 			}
 		}

@@ -64,7 +64,7 @@ namespace BitTile
 			_drawingSpaceViewModel.PropertyChanged += DrawingSpaceViewModelPropertyChanged;
 			_optionsViewModel.ActionChanged += OptionsActionChanged;
 
-			_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
+			_optionsViewModel.DrawnImage = _drawingSpaceViewModel.BitTile;
 
 			_newPrompt.CreateNewEvent += CreateNew;
 			_newPrompt.CancelCreateNewEvent += CloseCreateNewPrompt;
@@ -77,7 +77,7 @@ namespace BitTile
 
 		private void CtrlA()
 		{
-			_saveUpToDate = _fileHandler.SaveAs(_drawingSpaceViewModel.SmallBitTile);
+			_saveUpToDate = _fileHandler.SaveAs(_drawingSpaceViewModel.BitTile);
 		}
 
 		private void CtrlN()
@@ -119,7 +119,7 @@ namespace BitTile
 
 		private void CtrlS()
 		{
-			_saveUpToDate = _fileHandler.Save(_drawingSpaceViewModel.SmallBitTile);
+			_saveUpToDate = _fileHandler.Save(_drawingSpaceViewModel.BitTile);
 		}
 
 		private void Exit()
@@ -130,7 +130,7 @@ namespace BitTile
 
 				if (result == MessageBoxResult.Yes)
 				{
-					_fileHandler.SaveAs(_drawingSpaceViewModel.SmallBitTile);
+					_fileHandler.SaveAs(_drawingSpaceViewModel.BitTile);
 				}
 			}
 			_alreadyRanExitCommand = true;
@@ -141,8 +141,8 @@ namespace BitTile
 		{
 			switch(e.PropertyName)
 			{
-				case nameof(_drawingSpaceViewModel.SmallBitTile):
-					_optionsViewModel.DrawnImage = _drawingSpaceViewModel.SmallBitTile;
+				case nameof(_drawingSpaceViewModel.BitTile):
+					_optionsViewModel.DrawnImage = _drawingSpaceViewModel.BitTile;
 					_saveUpToDate = false;
 					break;
 				case nameof(_drawingSpaceViewModel.CurrentColor):

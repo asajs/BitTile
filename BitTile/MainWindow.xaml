@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Title="BitTile" 
 		Background="#ABABAB"
+		RenderOptions.BitmapScalingMode="HighQuality"
 		Closing="Window_Closing">
 
 	<DockPanel>

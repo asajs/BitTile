@@ -83,7 +83,7 @@ namespace BitTile
 
 		#region Properties
 
-		public BitmapSource SmallBitTile
+		public BitmapSource BitTile
 		{
 			get { return _bitTile; }
 			set
@@ -306,7 +306,7 @@ namespace BitTile
 			if (_undo.Count > 0)
 			{
 				Colors = _undo.Pop();
-				SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
+				BitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
 			}
 		}
 
@@ -325,14 +325,14 @@ namespace BitTile
 					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
 				}
 			}
-			SmallBitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
+			BitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
 		}
 
 		public void HandleSource(BitmapSource source)
 		{
 			Color[,] samples = BitmapManipulator.SampleBitmapSource(source, PixelsHigh, PixelsWide);
 			Colors = samples;
-			SmallBitTile = BitmapManipulator.CreateBitTile(samples, 1, PixelsHigh, PixelsWide);
+			BitTile = BitmapManipulator.CreateBitTile(samples, 1, PixelsHigh, PixelsWide);
 			_undo.Clear();
 		}
 
@@ -437,7 +437,7 @@ namespace BitTile
 			if (image is IInputElement element)
 			{
 				DrawingSpaceData sendData = new DrawingSpaceData(element, SizeOfPixel, PixelsHigh, PixelsWide, _previousX, _previousY,
-															_isMouseLeftPressed, Colors, _currentColor, SmallBitTile);
+															_isMouseLeftPressed, Colors, _currentColor, BitTile);
 
 				DrawingSpaceData receiveData = _clickAction.Action(sendData);
 
@@ -448,7 +448,7 @@ namespace BitTile
 				_previousY = receiveData.PreviousY;
 				Colors = receiveData.Colors;
 				CurrentColor = receiveData.CurrentColor;
-				SmallBitTile = receiveData.SmallBitmap;
+				BitTile = receiveData.SmallBitmap;
 			}
 		}
 		#endregion
