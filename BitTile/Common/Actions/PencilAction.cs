@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using BitTile.Common.Interfaces;
 using Point = System.Windows.Point;
@@ -28,16 +29,18 @@ namespace BitTile.Common.Actions
 					previousX = x;
 					previousY = y;
 				}
-				Point[] points = DrawLine(previousX, previousY, x, y);
+				Point[] points = GrabPointsOnLine(previousX, previousY, x, y);
 				foreach (Point savePoint in points)
 				{
 					colors[(int)savePoint.Y, (int)savePoint.X] = currentColor;
 				}
 				recievedData.Colors = colors;
+				recievedData.PreviousX = x;
+				recievedData.PreviousY = y;
 			}
 		}
 
-		private static Point[] DrawLine(double x1, double y1, double x2, double y2)
+		private static Point[] GrabPointsOnLine(double x1, double y1, double x2, double y2)
 		{
 			if (Math.Abs(y2 - y1) < Math.Abs(x2 - x1))
 			{

@@ -168,21 +168,6 @@ namespace BitTile.Common
 			return colors;
 		}
 
-		private static Color[,] SmartBlowUp(byte[] data, double heightFactor, double widthFactor, int incrementY, int incrementX, int imageHeight, int imageWidth)
-		{
-			Color[,] originalColors = new Color[imageHeight, imageWidth];
-
-			for (int y = 0; y < imageHeight; y++)
-			{
-				for (int x = 0; x < imageWidth; x++)
-				{
-					originalColors[y, x] = SampleLargeRegion(data, (int)heightFactor, (int)widthFactor, y, x, incrementY, incrementX);
-				}
-			}
-
-			return originalColors;
-		}
-
 		private static Color SampleSmallRegion(byte[] data, double heightFactor, double widthFactor, int startY, int startX, int incrementY, int incrementX)
 		{
 			int redSample = 0;
