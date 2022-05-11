@@ -1,7 +1,6 @@
 ﻿using BitTile.Common;
 using BitTile.Common.Actions;
 using BitTile.Common.Interfaces;
-using Microsoft.VisualStudio.PlatformUI;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -46,7 +45,6 @@ namespace BitTile
 			_maxPixelSize = int.Parse(Properties.Resources.MaxPixelSize);
 			_minPixelSize = int.Parse(Properties.Resources.MinPizelSize);
 
-			IsMouseLeftPressed = false;
 			LeftMouseDownCommand = new DelegateCommand<Image>((image) => LeftMouseDown(image));
 			LeftMouseUpCommand = new DelegateCommand(() => LeftMouseUp());
 			MouseMoveCommand = new DelegateCommand<Image>((image) => MouseMove(image), (image) => IsMouseLeftPressed);
@@ -55,7 +53,6 @@ namespace BitTile
 			MouseWheelCommand = new DelegateCommand((eventArgs) => MouseWheelMove(eventArgs));
 			_undo = new Stack<Color[,]>();
 			_clickAction = new PencilAction();
-
 			int width = int.Parse(Properties.Resources.DefaultWidth);
 			int height = int.Parse(Properties.Resources.DefaultHeight);
 			int size = int.Parse(Properties.Resources.DefaultPixelSize);
@@ -311,8 +308,7 @@ namespace BitTile
 
 		public bool IsMouseLeftPressed
 		{
-			get;
-			set;
+			get => Mouse.LeftButton == MouseButtonState.Pressed;
 		}
 
 		#endregion
@@ -401,7 +397,6 @@ namespace BitTile
 
 		private void MouseEnter(Image image)
 		{
-			IsMouseLeftPressed = Mouse.LeftButton == MouseButtonState.Pressed;
 			PreviousX = -1;
 			PreviousY = -1;
 
@@ -423,7 +418,6 @@ namespace BitTile
 		{
 			if (image is IInputElement)
 			{
-				IsMouseLeftPressed = true;
 				Color[,] newColors = new Color[PixelsHigh, PixelsWide];
 				for (int i = 0; i < PixelsHigh; i++)
 				{
@@ -441,7 +435,6 @@ namespace BitTile
 		{
 			PreviousX = -1;
 			PreviousY = -1;
-			IsMouseLeftPressed = false;
 		}
 
 		private void MouseMove(Image image)

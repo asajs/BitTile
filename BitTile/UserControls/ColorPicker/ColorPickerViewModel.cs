@@ -1,4 +1,5 @@
-﻿using ExtensionMethods;
+﻿using BitTile.Common;
+using ExtensionMethods;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using Microsoft.VisualStudio.PlatformUI;
