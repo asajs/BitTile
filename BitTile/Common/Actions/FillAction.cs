@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Linq;
 using BitTile.Common.Interfaces;
 using Point = System.Windows.Point;
@@ -9,7 +10,8 @@ namespace BitTile.Common.Actions
 	{
 		public void Action(IImageData recievedData)
 		{
-			Color[,] colors = recievedData.Colors;
+			Color[,] colors = new Color[recievedData.PixelsHigh, recievedData.PixelsWide];
+			Array.Copy(recievedData.Colors, colors, recievedData.PixelsHigh * recievedData.PixelsWide);
 			Color currentColor = recievedData.CurrentColor;
 
 			GetDataFromImage.GetNormalizedPoints(recievedData.MouseElement,

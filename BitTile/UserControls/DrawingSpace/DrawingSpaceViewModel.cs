@@ -1,6 +1,7 @@
 ﻿using BitTile.Common;
 using BitTile.Common.Actions;
 using BitTile.Common.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -165,8 +166,8 @@ namespace BitTile
 			get { return _colors; }
 			set
 			{
+				BitTile = BitmapManipulator.UpdateBitTile(_colors, value, 1, PixelsHigh, PixelsWide);
 				_colors = value;
-				BitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
 			}
 		}
 
@@ -319,7 +320,6 @@ namespace BitTile
 			if (_undo.Count > 0)
 			{
 				Colors = _undo.Pop();
-				BitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
 			}
 		}
 
@@ -330,22 +330,20 @@ namespace BitTile
 			PixelsHigh = height;
 			PixelsWide = width;
 			SizeOfPixel = pixelWidth;
-			Colors = new Color[PixelsHigh, PixelsWide];
+			Color[,] colors = new Color[PixelsHigh, PixelsWide];
 			for (int i = 0; i < PixelsHigh; i++)
 			{
 				for (int j = 0; j < PixelsWide; j++)
 				{
-					Colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
+					colors[i, j] = Color.FromArgb(0xff, 0xff, 0xff, 0xff);
 				}
 			}
-			BitTile = BitmapManipulator.CreateBitTile(Colors, 1, PixelsHigh, PixelsWide);
+			Colors = colors;
 		}
 
 		public void HandleSource(BitmapSource source)
 		{
-			Color[,] samples = BitmapManipulator.SampleBitmapSource(source, PixelsHigh, PixelsWide);
-			Colors = samples;
-			BitTile = BitmapManipulator.CreateBitTile(samples, 1, PixelsHigh, PixelsWide);
+			Colors = BitmapManipulator.SampleBitmapSource(source, PixelsHigh, PixelsWide);
 			_undo.Clear();
 		}
 
@@ -418,15 +416,9 @@ namespace BitTile
 		{
 			if (image is IInputElement)
 			{
-				Color[,] newColors = new Color[PixelsHigh, PixelsWide];
-				for (int i = 0; i < PixelsHigh; i++)
-				{
-					for (int j = 0; j < PixelsWide; j++)
-					{
-						newColors[i, j] = Colors[i, j];
-					}
-				}
-				_undo.Push(newColors);
+				Color[,] oldImage = new Color[PixelsHigh, PixelsWide];
+				Array.Copy(Colors, oldImage, PixelsHigh * PixelsWide);
+				_undo.Push(oldImage);
 				ChangeBitMap(image);
 			}
 		}

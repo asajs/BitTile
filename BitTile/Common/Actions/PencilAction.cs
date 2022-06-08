@@ -13,7 +13,8 @@ namespace BitTile.Common.Actions
 		{
 			int previousX = recievedData.PreviousX;
 			int previousY = recievedData.PreviousY;
-			Color[,] colors = recievedData.Colors;
+			Color[,] colors = new Color[recievedData.PixelsHigh, recievedData.PixelsWide];
+			Array.Copy(recievedData.Colors, colors, recievedData.PixelsHigh * recievedData.PixelsWide);
 			Color currentColor = recievedData.CurrentColor;
 			GetDataFromImage.GetNormalizedPoints(recievedData.MouseElement, 
 												recievedData.PixelsWide, 

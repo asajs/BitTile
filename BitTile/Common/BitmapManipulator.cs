@@ -11,17 +11,28 @@ namespace BitTile.Common
 {
 	static class BitmapManipulator
 	{
-		public static BitmapSource CreateBitTile(Color[,] colors, int pixelSize, int pixelsHeight, int pixelsWide)
+		private static Bitmap _bitmap;
+		private static Graphics _graphics;
+
+		public static BitmapSource UpdateBitTile(Color[,] oldColors, Color[,] newColors, int pixelSize, int pixelsHeight, int pixelsWide)
 		{
 			BitmapSource image;
-			using (Bitmap bitmap = new Bitmap(pixelsWide, pixelsHeight))
+
+			if(_bitmap is null)
 			{
-				using (Graphics graphics = Graphics.FromImage(bitmap))
-				{
-					DrawBitMap(graphics, colors, pixelSize, pixelsHeight, pixelsWide);
-				}
-				image = CreateBitmapSourceFromGdiBitmap(bitmap);
+				_bitmap = new Bitmap(pixelsWide, pixelsHeight);
+				_graphics = Graphics.FromImage(_bitmap);
 			}
+
+			if(_graphics is null)
+			{
+				_bitmap = new Bitmap(pixelsWide, pixelsHeight);
+				_graphics = Graphics.FromImage(_bitmap);
+			}
+
+			DrawBitMap(_graphics, oldColors, newColors, pixelSize, pixelsHeight, pixelsWide);
+
+			image = CreateBitmapSourceFromGdiBitmap(_bitmap);
 			return image;
 		}
 
@@ -248,16 +259,27 @@ namespace BitTile.Common
 			return bmp;
 		}
 
-		private static void DrawBitMap(Graphics gr, Color[,] colors, int pixelSize, int pixelsHeight, int pixelsWide)
+		private static void DrawBitMap(Graphics gr, Color[,] oldColors, Color[,] newColors, int pixelSize, int pixelsHeight, int pixelsWide)
 		{
 			for (int i = 0; i < pixelsHeight; i++)
 			{
 				for (int j = 0; j < pixelsWide; j++)
 				{
-					SolidBrush brush = new SolidBrush(colors[i, j]);
-					gr.FillRectangle(brush, j, i, 1, 1);
+					if (!CompareColor(oldColors[i, j], newColors[i, j]))
+					{
+						SolidBrush brush = new SolidBrush(newColors[i, j]);
+						gr.FillRectangle(brush, j, i, 1, 1);
+					}
 				}
 			}
+		}
+
+		private static bool CompareColor(Color first, Color second)
+		{
+			return first.A == second.A 
+				&& first.B == second.B 
+				&& first.G == second.G 
+				&& first.R == second.R;
 		}
 	}
 }
