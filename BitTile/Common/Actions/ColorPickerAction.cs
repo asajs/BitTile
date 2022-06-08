@@ -6,7 +6,7 @@ namespace BitTile.Common.Actions
 	{
 		public void Action(IImageData recievedData)
 		{
-			GetDataFromImage.GetNormalizedPoints(recievedData.MouseElement,
+			GetDataFromImage.GetNormalizedPoints(recievedData.MousePoint,
 				recievedData.PixelsWide,
 				recievedData.PixelsHigh,
 				recievedData.SizeOfPixel,

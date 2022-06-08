@@ -32,8 +32,7 @@ namespace ExtensionMethods
 			Color[] drawingColors = new Color[colors.Length];
 			for (int i = 0; i < colors.Length; i++)
 			{
-				Color temp = Color.FromArgb(colors[i].A, colors[i].R, colors[i].G, colors[i].B);
-				drawingColors[i] = temp;
+				drawingColors[i] = colors[i].ConvertMediaColorToDrawingColor();
 			}
 			return drawingColors;
 		}
@@ -48,8 +47,7 @@ namespace ExtensionMethods
 			System.Windows.Media.Color[] mediaColors = new System.Windows.Media.Color[colors.Length];
 			for (int i = 0; i < colors.Length; i++)
 			{
-				System.Windows.Media.Color temp = System.Windows.Media.Color.FromArgb(colors[i].A, colors[i].R, colors[i].G, colors[i].B);
-				mediaColors[i] = temp;
+				mediaColors[i] = colors[i].ConvertDrawingColorToMediaColor();
 			}
 			return mediaColors;
 		}
@@ -64,8 +62,7 @@ namespace ExtensionMethods
 			Point[] drawingPoints = new Point[points.Length];
 			for (int i = 0; i < points.Length; i++)
 			{
-				Point temp = new Point((int)points[i].X, (int)points[i].Y);
-				drawingPoints[i] = temp;
+				drawingPoints[i] = points[i].ConvertWindowPointToDrawingPoint();
 			}
 			return drawingPoints;
 		}

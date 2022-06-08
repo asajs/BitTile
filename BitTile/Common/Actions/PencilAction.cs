@@ -1,8 +1,7 @@
-﻿using System;
+﻿using BitTile.Common.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using BitTile.Common.Interfaces;
 using Point = System.Windows.Point;
 
 namespace BitTile.Common.Actions
@@ -16,7 +15,7 @@ namespace BitTile.Common.Actions
 			Color[,] colors = new Color[recievedData.PixelsHigh, recievedData.PixelsWide];
 			Array.Copy(recievedData.Colors, colors, recievedData.PixelsHigh * recievedData.PixelsWide);
 			Color currentColor = recievedData.CurrentColor;
-			GetDataFromImage.GetNormalizedPoints(recievedData.MouseElement, 
+			GetDataFromImage.GetNormalizedPoints(recievedData.MousePoint, 
 												recievedData.PixelsWide, 
 												recievedData.PixelsHigh, 
 												recievedData.SizeOfPixel, 

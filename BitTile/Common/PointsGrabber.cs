@@ -7,7 +7,7 @@ namespace BitTile.Common
 	public static class PointsGrabber
 	{
 
-		public static Point[] GrabPointsWithinFuzzValue(Color[,] colors, int normalizedX, int normalizedY, int fuzzValue = 0)
+		public static IEnumerable<Point> GrabPointsWithinFuzzValue(Color[,] colors, int normalizedX, int normalizedY, int fuzzValue = 0)
 		{
 			Stack<Point> frontier = new Stack<Point>();
 			List<Point> points = new List<Point>();
@@ -29,7 +29,7 @@ namespace BitTile.Common
 				}
 			}
 
-			return points.ToArray();
+			return points;
 		}
 
 		private static IEnumerable<Point> GetNeighbors(Point current, Color[,] colors, int fuzzValue, int normalizedX, int normalizedY)

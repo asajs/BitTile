@@ -105,7 +105,6 @@ namespace BitTile.Common
 				}
 			}
 
-			/* This override copies the data back into the location specified */
 			Marshal.Copy(data, 0, bData.Scan0, data.Length);
 
 			b.UnlockBits(bData);

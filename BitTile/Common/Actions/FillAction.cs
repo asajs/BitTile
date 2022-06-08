@@ -1,7 +1,7 @@
-﻿using System;
+﻿using BitTile.Common.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using BitTile.Common.Interfaces;
 using Point = System.Windows.Point;
 
 namespace BitTile.Common.Actions
@@ -14,7 +14,7 @@ namespace BitTile.Common.Actions
 			Array.Copy(recievedData.Colors, colors, recievedData.PixelsHigh * recievedData.PixelsWide);
 			Color currentColor = recievedData.CurrentColor;
 
-			GetDataFromImage.GetNormalizedPoints(recievedData.MouseElement,
+			GetDataFromImage.GetNormalizedPoints(recievedData.MousePoint,
 									recievedData.PixelsWide,
 									recievedData.PixelsHigh,
 									recievedData.SizeOfPixel,
@@ -23,9 +23,9 @@ namespace BitTile.Common.Actions
 
 			if (colors[y, x] != currentColor)
 			{
-				Point[] pointsToFill = PointsGrabber.GrabPointsWithinFuzzValue(colors, x, y);
+				IEnumerable<Point> pointsToFill = PointsGrabber.GrabPointsWithinFuzzValue(colors, x, y);
 
-				foreach (Point point in pointsToFill.ToList())
+				foreach (Point point in pointsToFill)
 				{
 					colors[(int)point.Y, (int)point.X] = currentColor;
 				}

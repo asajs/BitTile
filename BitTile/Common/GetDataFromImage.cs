@@ -1,16 +1,14 @@
 ﻿using ExtensionMethods;
 using System.Windows;
-using System.Windows.Input;
 
 namespace BitTile.Common
 {
 	public static class GetDataFromImage
 	{
-		public static void GetNormalizedPoints(IInputElement element, int pixelsWide, int pixelsHigh, int sizeOfPixel, out int colorY, out int colorX)
+		public static void GetNormalizedPoints(Point mousePosition, int pixelsWide, int pixelsHigh, int sizeOfPixel, out int colorY, out int colorX)
 		{
-			Point point = Mouse.GetPosition(element);
-			int y = (int)(point.Y / sizeOfPixel) * sizeOfPixel;
-			int x = (int)(point.X / sizeOfPixel) * sizeOfPixel;
+			int y = (int)(mousePosition.Y / sizeOfPixel) * sizeOfPixel;
+			int x = (int)(mousePosition.X / sizeOfPixel) * sizeOfPixel;
 			y.Clamp(0, pixelsHigh * sizeOfPixel - sizeOfPixel);
 			x.Clamp(0, pixelsWide * sizeOfPixel - sizeOfPixel);
 			colorY = y / sizeOfPixel;

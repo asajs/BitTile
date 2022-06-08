@@ -1,12 +1,11 @@
 ﻿using System.Drawing;
-using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace BitTile.Common.Interfaces
 {
 	public interface IImageData
 	{
-		public IInputElement MouseElement { get; }
+		public System.Windows.Point MousePoint { get; }
 		public int SizeOfPixel { get; }
 		public int PixelsHigh { get; }
 		public int PixelsWide { get; }

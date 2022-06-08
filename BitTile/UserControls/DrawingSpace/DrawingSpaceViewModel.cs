@@ -90,7 +90,7 @@ namespace BitTile
 			}
 		}
 
-		public IInputElement MouseElement 
+		public Point MousePoint 
 		{ 
 			get; 
 			set; 
@@ -438,7 +438,7 @@ namespace BitTile
 		{
 			if (image is IInputElement element)
 			{
-				MouseElement = element;
+				MousePoint = Mouse.GetPosition(element);
 				
 				_clickAction.Action(this);
 			}
